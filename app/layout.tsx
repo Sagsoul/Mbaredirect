@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Fraunces, Syne } from 'next/font/google'
 import './globals.css'
+import NavBar from '@/components/NavBar'
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -38,75 +39,7 @@ export default function RootLayout({
         style={{ fontFamily: 'var(--font-ui)' }}
       >
         {/* ── Navigation ── */}
-        <nav
-          className="px-4 py-3 flex items-center justify-between shadow-sm"
-          style={{ backgroundColor: 'var(--charcoal)' }}
-        >
-          <a href="/" className="flex items-center gap-2 no-underline">
-            {/* M mark SVG */}
-            <svg width="32" height="32" viewBox="0 0 80 80" aria-hidden="true">
-              <rect width="80" height="80" rx="15" fill="#1B4D2E" />
-              <path
-                d="M13 63L13 21L40 47L67 21L67 63"
-                fill="none"
-                stroke="#C8771C"
-                strokeWidth="7.5"
-                strokeLinecap="square"
-                strokeLinejoin="miter"
-              />
-            </svg>
-            {/* Wordmark */}
-            <span className="flex items-baseline gap-1">
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontStyle: 'italic',
-                  fontWeight: 900,
-                  fontSize: '1.35rem',
-                  color: 'var(--cream)',
-                  lineHeight: 1,
-                }}
-              >
-                Mbare
-              </span>
-              <span
-                style={{
-                  fontFamily: 'var(--font-ui)',
-                  fontWeight: 700,
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--amber)',
-                  lineHeight: 1,
-                }}
-              >
-                Direct
-              </span>
-            </span>
-          </a>
-
-          <div className="flex gap-3 text-sm font-semibold">
-            <a
-              href="/auth/login"
-              style={{ color: 'var(--cream)', fontFamily: 'var(--font-ui)' }}
-              className="hover:opacity-80 transition-opacity"
-            >
-              Login
-            </a>
-            <a
-              href="/auth/register"
-              className="rounded-lg px-3 py-1 transition-colors"
-              style={{
-                backgroundColor: 'var(--amber)',
-                color: 'var(--charcoal)',
-                fontFamily: 'var(--font-ui)',
-                fontWeight: 700,
-              }}
-            >
-              Join
-            </a>
-          </div>
-        </nav>
+        <NavBar />
 
         <main className="max-w-3xl mx-auto px-4 py-6">{children}</main>
 
