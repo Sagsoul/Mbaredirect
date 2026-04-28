@@ -140,7 +140,7 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
                         <img
                           src={u.national_id_signed_url}
                           alt="National ID"
-                          className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-500"
+                          className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-700"
                         />
                       </button>
                     )}
@@ -152,7 +152,7 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
                         <img
                           src={u.selfie_signed_url}
                           alt="Selfie with ID"
-                          className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-500"
+                          className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-700"
                         />
                       </button>
                     )}
@@ -164,7 +164,7 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
                   <button
                     onClick={() => approve(u.id)}
                     disabled={loading === u.id}
-                    className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-800 disabled:opacity-60"
+                    className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
                   >
                     {loading === u.id ? '…' : '✅ Approve'}
                   </button>
