@@ -26,7 +26,7 @@ interface Pitch {
   } | null
 }
 
-interface MyRequest {
+export interface MyRequest {
   id: string
   category: string
   item: string
