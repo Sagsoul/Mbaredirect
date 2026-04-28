@@ -3,7 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  /* Brand colours */
+  --green: #1B4D2E;
+  --green-dark: #112E1C;
+  --green-mid: #2D6B45;
+  --green-light: #C2D9CA;
+  --green-pale: #EBF2EE;
+  --amber: #C8771C;
+  --amber-dark: #9E5C12;
+  --amber-mid: #E09840;
+  --amber-light: #F0C68C;
+  --amber-pale: #FAEEDE;
+  --charcoal: #1E1A14;
+  --charcoal-mid: #3D3830;
+  --cream: #F7F0E3;
+  --cream-mid: #EDE7D9;
+  --off-white: #FAFAF8;
+  --text: #1E1A14;
+  --text-mid: #4A4540;
+  --text-muted: #7A7468;
+  --border: #E0DAD0;
+
+  /* Brand fonts */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui: 'Syne', Arial, sans-serif;
 }
 
 * {
@@ -11,7 +34,7 @@
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: #f8fafc;
-  color: #1e293b;
+  font-family: var(--font-ui);
+  background-color: var(--off-white);
+  color: var(--text);
 }
