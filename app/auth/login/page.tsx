@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+type StatusMessage = { type: 'pending' | 'rejected' | null; text: string }
+
 export default function LoginPage() {
   const supabase = createClient()
   const router = useRouter()
@@ -12,13 +14,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [statusMessage, setStatusMessage] = useState<StatusMessage>({ type: null, text: '' })
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setStatusMessage({ type: null, text: '' })
     setLoading(true)
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -29,7 +33,55 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard/buyer')
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, status')
+      .eq('id', data.user.id)
+      .single()
+
+    const status = profile?.status ?? null
+    const role = profile?.role ?? null
+
+    if (status === 'verified') {
+      if (role === 'seller') {
+        router.push('/dashboard/seller')
+      } else if (role === 'admin') {
+        router.push('/')
+      } else {
+        router.push('/dashboard/buyer')
+      }
+      router.refresh()
+      return
+    }
+
+    if (status === 'pending') {
+      await supabase.auth.signOut()
+      setStatusMessage({
+        type: 'pending',
+        text: "Your account is under review. We'll notify you by email within 24 hours once our team has verified your details.",
+      })
+      setLoading(false)
+      return
+    }
+
+    if (status === 'rejected') {
+      await supabase.auth.signOut()
+      setStatusMessage({
+        type: 'rejected',
+        text: 'Your application was not approved. Please contact support at support@mbaredirect.com.',
+      })
+      setLoading(false)
+      return
+    }
+
+    if (status === 'browser_only') {
+      router.push('/')
+      router.refresh()
+      return
+    }
+
+    // unverified, null, or profile fetch error — send to verify
+    router.push('/verify')
     router.refresh()
   }
 
@@ -41,6 +93,23 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 space-y-4">
+        {statusMessage.type === 'pending' && (
+          <div
+            className="rounded-lg border px-4 py-3 text-sm"
+            style={{ backgroundColor: '#FAEEDE', borderColor: '#F0C68C', color: '#9E5C12' }}
+          >
+            <p className="font-semibold mb-0.5">⏳ Your account is under review</p>
+            <p>{statusMessage.text}</p>
+          </div>
+        )}
+
+        {statusMessage.type === 'rejected' && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+            <p className="font-semibold mb-0.5">❌ Verification unsuccessful</p>
+            <p>{statusMessage.text}</p>
+          </div>
+        )}
+
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2 text-sm">
             {error}
