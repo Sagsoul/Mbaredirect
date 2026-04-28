@@ -30,7 +30,7 @@ export default async function BuyerDashboardPage() {
       id, category, item, quantity, location, target_budget_usd,
       created_at, status,
       pitches(id, price_usd, message, status, created_at,
-        seller:profiles!pitches_seller_id_fkey(full_name, reliability_score, reliability_count)
+        seller:profiles!pitches_seller_id_fkey(full_name, phone, reliability_score, reliability_count)
       )
     `)
     .eq('buyer_id', user.id)

@@ -49,7 +49,7 @@ export default function SellerDashboardPage() {
           .select(`
             id, category, item, quantity, location, target_budget_usd,
             created_at, status, whatsapp_views,
-            buyer:profiles!requests_buyer_id_fkey(full_name, reliability_score, reliability_count),
+            buyer:profiles!requests_buyer_id_fkey(full_name, phone, reliability_score, reliability_count),
             pitches(count)
           `)
           .eq('status', 'open')
