@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import BuyerDashboardClient from './BuyerDashboardClient'
 
 export default async function BuyerDashboardPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')

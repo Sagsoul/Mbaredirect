@@ -25,9 +25,9 @@ interface RequestRow {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { category?: string }
+  searchParams: Promise<{ category?: string }>
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -43,7 +43,8 @@ export default async function Home({
     isVerified = profile?.status === 'verified'
   }
 
-  const selectedCategory = searchParams.category ?? 'All'
+  const { category } = await searchParams
+  const selectedCategory = category ?? 'All'
 
   let query = supabase
     .from('requests')
