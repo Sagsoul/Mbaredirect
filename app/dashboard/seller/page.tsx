@@ -22,6 +22,11 @@ export default function SellerDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // ── Pending deal confirmations assigned to this seller ───────────────────
+  const [pendingDeals, setPendingDeals] = useState<any[]>([])
+  const [confirmingDealId, setConfirmingDealId] = useState<string | null>(null)
+  const [dealConfirmError, setDealConfirmError] = useState('')
+
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -43,7 +48,7 @@ export default function SellerDashboardPage() {
 
       setUserId(user.id)
 
-      const [{ data: reqs }, { data: pitches }] = await Promise.all([
+      const [{ data: reqs }, { data: pitches }, { data: deals }] = await Promise.all([
         supabase
           .from('requests')
           .select(`
@@ -64,10 +69,20 @@ export default function SellerDashboardPage() {
           `)
           .eq('seller_id', user.id)
           .order('created_at', { ascending: false }),
+        // Fetch deals where this seller is the assigned counterpart and has not yet confirmed
+        supabase
+          .from('deals')
+          .select(`
+            id, is_outside_platform, buyer_confirmed, seller_confirmed, created_at,
+            request:requests(item, category, location)
+          `)
+          .eq('seller_id', user.id)
+          .eq('seller_confirmed', false),
       ])
 
       setRequests(reqs ?? [])
       setMyPitches(pitches ?? [])
+      setPendingDeals(deals ?? [])
       setLoading(false)
     }
     load()
@@ -162,6 +177,39 @@ export default function SellerDashboardPage() {
     window.location.reload()
   }
 
+  /**
+   * Confirms the seller's side of a deal.
+   * The actual fee-reduction logic runs server-side in /api/deals/confirm so
+   * that both buyer's and seller's profiles can be updated safely.
+   *
+   * Fee-reduction rules (documented for transparency — Issue #15):
+   *   - On-platform deals reduce each party's next fee by 2% per deal.
+   *   - After 50 on-platform deals the platform automatically grants a free year.
+   *   - Outside-platform deals do NOT count.
+   */
+  async function handleConfirmDeal(dealId: string) {
+    setConfirmingDealId(dealId)
+    setDealConfirmError('')
+
+    const res = await fetch('/api/deals/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dealId }),
+    })
+
+    const json = await res.json()
+    setConfirmingDealId(null)
+
+    if (!res.ok) {
+      setDealConfirmError(json.error ?? 'Failed to confirm deal.')
+      return
+    }
+
+    // Remove confirmed deal from local state and refresh
+    setPendingDeals((prev) => prev.filter((d) => d.id !== dealId))
+    window.location.reload()
+  }
+
   if (loading) {
     return (
       <div className="text-center py-16 text-slate-400">
@@ -177,6 +225,48 @@ export default function SellerDashboardPage() {
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2 text-sm">{error}</div>
+      )}
+
+      {/* ── Pending deal confirmations ───────────────────────────────────── */}
+      {pendingDeals.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="font-semibold text-slate-700">⏳ Deals Awaiting Your Confirmation</h2>
+          <p className="text-xs text-slate-500">
+            The buyer has marked these requests as purchased and selected you as the seller.
+            Confirm to complete the deal — both confirmations are required for fee reductions to apply.
+          </p>
+
+          {dealConfirmError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2 text-sm">
+              {dealConfirmError}
+            </div>
+          )}
+
+          {pendingDeals.map((deal) => (
+            <div key={deal.id} className="bg-amber-50 rounded-xl border border-amber-200 p-4 space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-semibold text-slate-900 text-sm">
+                    {deal.request?.item ?? 'Request'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {deal.request?.location} · {deal.request?.category}
+                  </p>
+                </div>
+                <span className="text-xs font-semibold rounded-full px-2 py-0.5 bg-amber-100 text-amber-700">
+                  Pending confirmation
+                </span>
+              </div>
+              <button
+                onClick={() => handleConfirmDeal(deal.id)}
+                disabled={confirmingDealId === deal.id}
+                className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
+              >
+                {confirmingDealId === deal.id ? 'Confirming…' : '✅ Confirm Deal'}
+              </button>
+            </div>
+          ))}
+        </section>
       )}
 
       {/* My pitches */}

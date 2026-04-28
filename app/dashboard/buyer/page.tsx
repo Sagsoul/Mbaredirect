@@ -29,7 +29,7 @@ export default async function BuyerDashboardPage() {
     .select(`
       id, category, item, quantity, location, target_budget_usd,
       created_at, status,
-      pitches(id, price_usd, message, status, created_at,
+      pitches(id, seller_id, price_usd, message, status, created_at,
         seller:profiles!pitches_seller_id_fkey(full_name, phone, reliability_score, reliability_count)
       )
     `)
