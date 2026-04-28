@@ -133,7 +133,7 @@ export default function SellerDashboardPage() {
       .eq('id', pitchId)
       .single()
 
-    const buyerId = (pitchData?.request as { buyer_id: string } | null)?.buyer_id
+    const buyerId = (pitchData?.request as unknown as { buyer_id: string } | null)?.buyer_id
     if (!buyerId) {
       setShowRating(null)
       window.location.reload()

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import BuyerDashboardClient from './BuyerDashboardClient'
+import BuyerDashboardClient, { MyRequest } from './BuyerDashboardClient'
 
 export default async function BuyerDashboardPage() {
   const supabase = await createClient()
@@ -40,7 +40,7 @@ export default async function BuyerDashboardPage() {
     <BuyerDashboardClient
       userId={user.id}
       priceFloors={priceFloors ?? []}
-      myRequests={myRequests ?? []}
+      myRequests={(myRequests ?? []) as unknown as MyRequest[]}
     />
   )
 }
