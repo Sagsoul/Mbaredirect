@@ -55,8 +55,19 @@ export default function VerifyPage() {
       return
     }
 
-    const idPath = `${user.id}/national_id_${Date.now()}.${idFile.name.split('.').pop()}`
-    const selfiePath = `${user.id}/selfie_${Date.now()}.${selfieFile.name.split('.').pop()}`
+    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png']
+
+    const idExt = (idFile.name.split('.').pop() ?? '').toLowerCase()
+    const selfieExt = (selfieFile.name.split('.').pop() ?? '').toLowerCase()
+
+    if (!ALLOWED_EXTENSIONS.includes(idExt) || !ALLOWED_EXTENSIONS.includes(selfieExt)) {
+      setError('Only JPG and PNG images are accepted.')
+      setLoading(false)
+      return
+    }
+
+    const idPath = `${user.id}/national_id_${Date.now()}.${idExt}`
+    const selfiePath = `${user.id}/selfie_${Date.now()}.${selfieExt}`
 
     const [idUpload, selfieUpload] = await Promise.all([
       supabase.storage.from('verifications').upload(idPath, idFile, { upsert: true }),

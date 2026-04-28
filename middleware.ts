@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { DASHBOARD_BLOCKED_STATUSES } from '@/lib/constants'
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -49,7 +50,7 @@ export async function middleware(request: NextRequest) {
       .single()
 
     if (profile) {
-      const blockedStatuses = ['unverified', 'pending', 'browser_only', 'rejected']
+      const blockedStatuses: readonly string[] = DASHBOARD_BLOCKED_STATUSES
       if (blockedStatuses.includes(profile.status)) {
         const verifyUrl = request.nextUrl.clone()
         verifyUrl.pathname = '/verify'

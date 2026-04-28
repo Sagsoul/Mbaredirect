@@ -1,3 +1,5 @@
+export const DEFAULT_SITE_URL = 'https://mbaredirect.co.zw'
+
 export function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('en-ZW', {
@@ -22,7 +24,7 @@ export function buildWhatsAppLink(params: {
   category: string
   siteUrl?: string
 }): string {
-  const siteUrl = params.siteUrl ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mbaredirect.co.zw'
+  const siteUrl = params.siteUrl ?? process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL
   const text = encodeURIComponent(
     `🛒 *Mbare Direct Request*\n📦 Item: ${params.item}\n📍 Location: ${params.location}\n🏷️ Category: ${params.category}\n👉 Join at: ${siteUrl}/requests/${params.id}`,
   )

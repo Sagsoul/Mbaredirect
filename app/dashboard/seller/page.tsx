@@ -71,6 +71,8 @@ export default function SellerDashboardPage() {
       setLoading(false)
     }
     load()
+  // supabase client is stable across renders (singleton from createClient),
+  // so omitting it from deps is intentional to run load() only on mount.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatDate } from '@/lib/utils'
+import { SUBSCRIPTION_DURATION_DAYS } from '@/lib/constants'
 
 const REJECTION_REASONS = [
   'Name Mismatch',
@@ -44,7 +45,7 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
   async function approve(userId: string) {
     setLoading(userId)
     const expiresAt = new Date()
-    expiresAt.setFullYear(expiresAt.getFullYear() + 1)
+    expiresAt.setDate(expiresAt.getDate() + SUBSCRIPTION_DURATION_DAYS)
 
     await supabase
       .from('profiles')
@@ -132,7 +133,10 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
                   {/* Thumbnails */}
                   <div className="flex gap-2">
                     {u.national_id_signed_url && (
-                      <button onClick={() => setExpandedImg(u.national_id_signed_url!)}>
+                      <button
+                        onClick={() => setExpandedImg(u.national_id_signed_url!)}
+                        aria-label="View National ID document"
+                      >
                         <img
                           src={u.national_id_signed_url}
                           alt="National ID"
@@ -141,10 +145,13 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
                       </button>
                     )}
                     {u.selfie_signed_url && (
-                      <button onClick={() => setExpandedImg(u.selfie_signed_url!)}>
+                      <button
+                        onClick={() => setExpandedImg(u.selfie_signed_url!)}
+                        aria-label="View selfie with ID"
+                      >
                         <img
                           src={u.selfie_signed_url}
-                          alt="Selfie"
+                          alt="Selfie with ID"
                           className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-500"
                         />
                       </button>

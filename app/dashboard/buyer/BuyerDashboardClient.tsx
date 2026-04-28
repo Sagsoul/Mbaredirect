@@ -70,7 +70,7 @@ export default function BuyerDashboardClient({ userId, priceFloors, myRequests: 
     const floor = priceFloors.find(
       (f) =>
         f.category === category &&
-        lc.includes(f.item_keyword.toLowerCase()),
+        new RegExp(`\\b${f.item_keyword.toLowerCase()}\\b`).test(lc),
     )
     if (floor && numVal < floor.min_price_usd) {
       setPriceWarning(
