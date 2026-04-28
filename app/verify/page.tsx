@@ -160,7 +160,7 @@ export default function VerifyPage() {
               required
               value={ecocashName}
               onChange={(e) => setEcocashName(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10"
               placeholder="As shown on your EcoCash account"
             />
           </div>
@@ -175,14 +175,14 @@ export default function VerifyPage() {
               required
               value={ecocashRef}
               onChange={(e) => setEcocashRef(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10"
               placeholder="e.g. ECO240101ABCD12"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-800"
+            className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600"
           >
             Continue to Upload →
           </button>
@@ -213,7 +213,7 @@ export default function VerifyPage() {
               accept="image/jpeg,image/png"
               required
               onChange={(e) => setIdFile(e.target.files?.[0] ?? null)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-green-50 file:text-green-700 file:font-semibold file:text-xs"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-green-50 file:text-green-700 file:font-semibold file:text-xs"
             />
           </div>
 
@@ -227,14 +227,14 @@ export default function VerifyPage() {
               accept="image/jpeg,image/png"
               required
               onChange={(e) => setSelfieFile(e.target.files?.[0] ?? null)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-green-50 file:text-green-700 file:font-semibold file:text-xs"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-green-50 file:text-green-700 file:font-semibold file:text-xs"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-800 disabled:opacity-60"
+            className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600 disabled:opacity-60"
           >
             {loading ? 'Uploading…' : 'Submit for Verification'}
           </button>
@@ -242,7 +242,7 @@ export default function VerifyPage() {
           <button
             type="button"
             onClick={() => setStep(1)}
-            className="w-full text-slate-500 text-sm hover:underline"
+            className="w-full border border-green-700 text-green-700 rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-50"
           >
             ← Back
           </button>
@@ -260,7 +260,7 @@ export default function VerifyPage() {
           </p>
           <a
             href="/"
-            className="inline-block bg-green-700 text-white rounded-lg px-5 py-2 font-semibold text-sm hover:bg-green-800"
+            className="inline-block bg-green-700 text-white rounded-lg px-5 py-2 font-semibold text-sm hover:bg-green-600"
           >
             Browse the Feed →
           </a>

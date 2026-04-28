@@ -241,7 +241,7 @@ export default function SellerDashboardPage() {
                   setPitchError('')
                   setPitchSuccess(false)
                 }}
-                className="w-full rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-800"
+                className="w-full rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600"
               >
                 💬 Pitch Now
               </button>
@@ -284,7 +284,7 @@ export default function SellerDashboardPage() {
                     step="0.01"
                     value={pitchPrice}
                     onChange={(e) => setPitchPrice(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10"
                     placeholder="0.00"
                   />
                 </div>
@@ -297,14 +297,14 @@ export default function SellerDashboardPage() {
                     rows={3}
                     value={pitchMessage}
                     onChange={(e) => setPitchMessage(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10 resize-none"
                     placeholder="Describe your offer, delivery time, etc."
                   />
                 </div>
                 <button
                   onClick={() => submitPitch(pitching)}
                   disabled={pitchLoading}
-                  className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-800 disabled:opacity-60"
+                  className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600 disabled:opacity-60"
                 >
                   {pitchLoading ? 'Submitting…' : 'Submit Pitch'}
                 </button>
@@ -325,7 +325,7 @@ export default function SellerDashboardPage() {
                 <button
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`text-3xl ${star <= rating ? 'text-green-600' : 'text-slate-300'}`}
+                  className={`text-3xl ${star <= rating ? 'text-green-700' : 'text-slate-300'}`}
                 >
                   ★
                 </button>
@@ -333,7 +333,7 @@ export default function SellerDashboardPage() {
             </div>
             <button
               onClick={() => submitRating(showRating)}
-              className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-800"
+              className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600"
             >
               Submit Rating
             </button>

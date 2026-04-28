@@ -44,9 +44,9 @@ export default function RequestCard({ request, pitchCount = 0, isVerified }: Req
           <span
             className={`text-xs font-semibold rounded-full px-2 py-0.5 ${
               request.status === 'open'
-                ? 'bg-blue-100 text-blue-700'
+                ? 'bg-green-100 text-green-700'
                 : request.status === 'shortlisted'
-                ? 'bg-amber-100 text-amber-700'
+                ? 'bg-amber-100 text-amber-600'
                 : 'bg-slate-100 text-slate-500'
             }`}
           >

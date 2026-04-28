@@ -10,19 +10,19 @@ export default function VerificationBadge({ status }: VerificationBadgeProps) {
     },
     pending: {
       label: '⏳ Pending',
-      className: 'bg-amber-100 text-amber-700 border border-amber-300',
+      className: 'bg-amber-100 text-amber-600 border border-amber-300',
     },
     browser_only: {
       label: '👁️ Browser Only',
-      className: 'bg-slate-100 text-slate-600 border border-slate-300',
+      className: 'bg-slate-200 text-slate-600 border border-slate-300',
     },
     unverified: {
       label: '❌ Unverified',
-      className: 'bg-red-100 text-red-700 border border-red-300',
+      className: 'bg-slate-200 text-slate-600 border border-slate-300',
     },
     rejected: {
       label: '🚫 Rejected',
-      className: 'bg-red-100 text-red-700 border border-red-300',
+      className: 'bg-red-100 text-red-600 border border-red-200',
     },
   }
 

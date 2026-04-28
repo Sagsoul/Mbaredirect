@@ -59,7 +59,7 @@ export default function PitchCard({ pitch, isBuyer, onShortlist, onMarkDone }: P
         {isBuyer && pitch.status === 'pending' && onShortlist && (
           <button
             onClick={() => onShortlist(pitch.id)}
-            className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-800"
+            className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600"
           >
             ✅ Shortlist
           </button>
