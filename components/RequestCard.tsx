@@ -15,6 +15,7 @@ interface RequestCardProps {
     whatsapp_views: number
     buyer?: {
       full_name: string
+      phone?: string | null
       reliability_score: number
       reliability_count: number
     } | null
@@ -86,6 +87,19 @@ export default function RequestCard({ request, pitchCount = 0, isVerified }: Req
                 score={request.buyer.reliability_score}
                 count={request.buyer.reliability_count}
               />
+            </BlurGate>
+          </div>
+        )}
+        {request.buyer?.phone && (
+          <div className="flex items-center gap-1">
+            <span className="text-slate-500">📞</span>
+            <BlurGate isVerified={isVerified}>
+              <a
+                href={`tel:${request.buyer.phone}`}
+                className="font-semibold text-green-700 hover:underline"
+              >
+                {request.buyer.phone}
+              </a>
             </BlurGate>
           </div>
         )}

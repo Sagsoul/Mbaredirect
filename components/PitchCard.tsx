@@ -13,6 +13,7 @@ interface PitchCardProps {
     deal_finalized_by_seller?: boolean
     seller?: {
       full_name: string
+      phone?: string | null
       reliability_score: number
       reliability_count: number
     } | null
@@ -42,6 +43,14 @@ export default function PitchCard({ pitch, isBuyer, onShortlist, onMarkDone }: P
                 score={pitch.seller.reliability_score}
                 count={pitch.seller.reliability_count}
               />
+              {pitch.seller.phone && (
+                <a
+                  href={`tel:${pitch.seller.phone}`}
+                  className="text-xs text-green-700 font-semibold hover:underline block mt-0.5"
+                >
+                  📞 {pitch.seller.phone}
+                </a>
+              )}
             </div>
           )}
         </div>

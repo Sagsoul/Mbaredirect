@@ -4,12 +4,29 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+const DIAL_CODES = [
+  { code: '+263', label: '🇿🇼 +263 Zimbabwe' },
+  { code: '+27', label: '🇿🇦 +27 South Africa' },
+  { code: '+260', label: '🇿🇲 +260 Zambia' },
+  { code: '+267', label: '🇧🇼 +267 Botswana' },
+  { code: '+258', label: '🇲🇿 +258 Mozambique' },
+  { code: '+255', label: '🇹🇿 +255 Tanzania' },
+  { code: '+254', label: '🇰🇪 +254 Kenya' },
+  { code: '+234', label: '🇳🇬 +234 Nigeria' },
+  { code: '+233', label: '🇬🇭 +233 Ghana' },
+  { code: '+44', label: '🇬🇧 +44 UK' },
+  { code: '+1', label: '🇺🇸 +1 USA/Canada' },
+  { code: '+61', label: '🇦🇺 +61 Australia' },
+  { code: '+971', label: '🇦🇪 +971 UAE' },
+]
+
 export default function RegisterPage() {
   const supabase = createClient()
   const router = useRouter()
 
   const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [dialCode, setDialCode] = useState('+263')
+  const [localPhone, setLocalPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'buyer' | 'seller'>('buyer')
@@ -19,6 +36,12 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+
+    if (!localPhone.trim()) {
+      setError('Please enter your phone number.')
+      return
+    }
+
     setLoading(true)
 
     const { data, error: signUpError } = await supabase.auth.signUp({
@@ -36,6 +59,7 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
+      const phone = dialCode + localPhone.replace(/^0+/, '')
       const { error: profileError } = await supabase.from('profiles').insert({
         id: data.user.id,
         full_name: fullName,
@@ -86,16 +110,29 @@ export default function RegisterPage() {
 
         <div className="space-y-1">
           <label htmlFor="phone" className="block text-sm font-medium text-slate-700">
-            Phone (optional)
+            Phone Number
           </label>
-          <input
-            id="phone"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10"
-            placeholder="+263 77 123 4567"
-          />
+          <div className="flex gap-2">
+            <select
+              value={dialCode}
+              onChange={(e) => setDialCode(e.target.value)}
+              className="border border-slate-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10 bg-white"
+            >
+              {DIAL_CODES.map((d) => (
+                <option key={d.code} value={d.code}>{d.label}</option>
+              ))}
+            </select>
+            <input
+              id="phone"
+              type="tel"
+              required
+              pattern="[0-9\s\-]+"
+              value={localPhone}
+              onChange={(e) => setLocalPhone(e.target.value)}
+              className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10"
+              placeholder="77 123 4567"
+            />
+          </div>
         </div>
 
         <div className="space-y-1">

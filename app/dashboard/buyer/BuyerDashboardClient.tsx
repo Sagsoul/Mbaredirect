@@ -21,6 +21,7 @@ interface Pitch {
   created_at: string
   seller?: {
     full_name: string
+    phone?: string | null
     reliability_score: number
     reliability_count: number
   } | null
