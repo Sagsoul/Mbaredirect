@@ -69,17 +69,30 @@ export default async function Home({
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <section className="rounded-xl bg-green-700 text-white p-6 text-center space-y-3">
-        <h1 className="text-2xl font-bold leading-tight">
+      <section
+        className="rounded-xl text-center space-y-4 p-8"
+        style={{ background: '#1B4D2E' }}
+      >
+        <p
+          className="text-xs font-bold tracking-widest uppercase"
+          style={{ color: '#C8771C' }}
+        >
+          Zimbabwe to the World
+        </p>
+        <h1
+          className="text-2xl font-bold leading-tight"
+          style={{ color: '#F7F0E3' }}
+        >
           Zimbabwe's Buyer-First Marketplace
         </h1>
-        <p className="text-green-100 text-sm leading-relaxed">
+        <p className="text-sm leading-relaxed" style={{ color: 'rgba(247,240,227,0.7)' }}>
           Post a need. Get competitive pitches from verified sellers.<br />
           Agriculture · Construction · Transport
         </p>
         <a
           href="/auth/register"
-          className="inline-block bg-white text-green-700 rounded-lg px-5 py-2.5 font-semibold text-sm hover:bg-green-50 mt-1"
+          className="inline-block rounded-lg px-5 py-2.5 font-semibold text-sm mt-1 transition-opacity hover:opacity-90"
+          style={{ background: '#C8771C', color: '#fff' }}
         >
           Join the Club — $10/year
         </a>
@@ -91,11 +104,16 @@ export default async function Home({
           <a
             key={cat}
             href={cat === 'All' ? '/' : `/?category=${cat}`}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold border ${
+            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold border transition-colors ${
               selectedCategory === cat
-                ? 'bg-green-700 text-white border-green-700'
-                : 'bg-white text-slate-600 border-slate-200 hover:border-green-400'
+                ? 'text-white border-transparent'
+                : 'bg-white text-slate-600 border-slate-200'
             }`}
+            style={
+              selectedCategory === cat
+                ? { background: '#1B4D2E', borderColor: '#1B4D2E' }
+                : undefined
+            }
           >
             {cat === 'Agriculture' ? '🌽' : cat === 'Construction' ? '🏗️' : cat === 'Transport' ? '🚛' : ''}
             {cat === 'All' ? '' : ' '}
@@ -106,16 +124,93 @@ export default async function Home({
 
       {/* Request feed */}
       {!requests || requests.length === 0 ? (
-        <div className="text-center text-slate-400 py-12">
-          <p className="text-4xl mb-3">📭</p>
-          <p className="font-semibold">No open requests yet.</p>
-          <p className="text-sm mt-1">Be the first to post one!</p>
-          <a
-            href="/auth/register"
-            className="inline-block mt-4 bg-green-700 text-white rounded-lg px-5 py-2 font-semibold text-sm hover:bg-green-800"
+        <div className="space-y-6">
+          {/* Empty feed message */}
+          <div
+            className="rounded-xl border p-8 text-center space-y-3"
+            style={{ background: '#EBF2EE', borderColor: '#C2D9CA' }}
           >
-            Post a Request
-          </a>
+            <p className="text-3xl">🌱</p>
+            <p className="font-bold text-base" style={{ color: '#1B4D2E' }}>
+              No open requests yet.
+            </p>
+            <p className="text-sm" style={{ color: '#4A4540' }}>
+              Be the first buyer to post a need — verified sellers will pitch within hours.
+            </p>
+            <a
+              href="/auth/register"
+              className="inline-block rounded-lg px-5 py-2.5 font-semibold text-sm transition-opacity hover:opacity-90"
+              style={{ background: '#1B4D2E', color: '#F7F0E3' }}
+            >
+              Post a Request
+            </a>
+          </div>
+
+          {/* How it works */}
+          <div className="space-y-3">
+            <p
+              className="text-xs font-bold tracking-widest uppercase text-center"
+              style={{ color: '#C8771C' }}
+            >
+              How it works
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {[
+                {
+                  step: '01',
+                  title: 'Post your need',
+                  body: 'Tell us what you need — maize, timber, transport — and your target budget.',
+                },
+                {
+                  step: '02',
+                  title: 'Sellers pitch',
+                  body: 'Verified Mbare traders submit competitive offers directly to you.',
+                },
+                {
+                  step: '03',
+                  title: 'Pick the best deal',
+                  body: 'Review pitches, shortlist sellers, and close the deal on your terms.',
+                },
+              ].map(({ step, title, body }) => (
+                <div
+                  key={step}
+                  className="rounded-xl border p-5 space-y-2"
+                  style={{ background: '#fff', borderColor: '#E0DAD0' }}
+                >
+                  <p
+                    className="text-xs font-bold tracking-widest"
+                    style={{ color: '#C8771C' }}
+                  >
+                    {step}
+                  </p>
+                  <p className="font-bold text-sm" style={{ color: '#1E1A14' }}>
+                    {title}
+                  </p>
+                  <p className="text-xs leading-relaxed" style={{ color: '#7A7468' }}>
+                    {body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Trust strip */}
+          <div
+            className="rounded-xl border p-5 flex flex-wrap gap-4 justify-center text-center"
+            style={{ background: '#FAEEDE', borderColor: '#F0C68C' }}
+          >
+            {[
+              { label: 'Verified sellers only', icon: '✅' },
+              { label: 'Direct from Mbare Musika', icon: '📍' },
+              { label: 'Ships worldwide', icon: '🌍' },
+              { label: 'No middlemen', icon: '🤝' },
+            ].map(({ label, icon }) => (
+              <div key={label} className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#9E5C12' }}>
+                <span>{icon}</span>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
