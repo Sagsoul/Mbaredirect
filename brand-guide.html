@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mbare Direct · Brand Guidelines</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><rect width='80' height='80' rx='15' fill='%231B4D2E'/><path d='M13 63L13 21L40 47L67 21L67 63' fill='none' stroke='%23C8771C' stroke-width='7.5' stroke-linecap='square' stroke-linejoin='miter'/></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><rect width='80' height='80' rx='15' fill='%231B4D2E'/><path d='M13 63L13 21L40 47L67 21L67 63' fill='none' stroke='%23C8771C' stroke-width='7.5' stroke-linecap='square' stroke-linejoin='miter'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-900: #0D2B18;
+      --green-800: #1B4D2E;
+      --green-700: #236238;
+      --green-100: #E8F5EE;
+      --amber:     #C8771C;
+      --amber-100: #FDF3E3;
+      --white:     #FFFFFF;
+      --ink:       #1A1A1A;
+      --ink-soft:  #4A4A4A;
+      --rule:      #E0E0E0;
+
+      --font-sans:   'DM Sans', system-ui, sans-serif;
+      --font-serif:  'DM Serif Display', Georgia, serif;
+
+      --section-pad: 80px 56px;
+      --radius:      12px;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: #F7F7F5;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--green-800);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      gap: 16px;
+    }
+
+    nav .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -.01em;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    nav .brand svg { flex-shrink: 0; }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 28px;
+      font-size: .85rem;
+      font-weight: 500;
+    }
+
+    nav ul a {
+      color: rgba(255,255,255,.8);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    nav ul a:hover { color: var(--white); }
+
+    /* ── Sections ── */
+    section {
+      padding: var(--section-pad);
+      border-bottom: 1px solid var(--rule);
+      background: var(--white);
+    }
+    section:nth-child(even) { background: #FAFAF8; }
+
+    .section-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      max-width: 640px;
+      color: var(--ink-soft);
+      font-size: .95rem;
+      margin-bottom: 40px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--green-800);
+      color: var(--white);
+      padding: 80px 56px;
+      border-bottom: 4px solid var(--amber);
+    }
+
+    .hero-wordmark {
+      font-family: var(--font-serif);
+      font-size: clamp(52px, 9vw, 96px);
+      letter-spacing: -.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .hero-wordmark span { color: var(--amber); }
+
+    .hero-tagline {
+      font-size: clamp(.9rem, 2vw, 1.1rem);
+      color: rgba(255,255,255,.7);
+      font-weight: 500;
+      margin-bottom: 32px;
+      letter-spacing: .02em;
+    }
+
+    .hero-meta {
+      font-size: .75rem;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Trait grid ── */
+    .trait-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .trait-card {
+      background: var(--green-100);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .trait-card .num {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      color: var(--green-800);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .trait-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .trait-card p {
+      font-size: .82rem;
+      color: var(--ink-soft);
+    }
+
+    /* ── Logo lockups ── */
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .logo-swatch {
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .logo-swatch.dark { background: var(--green-800); border-color: var(--green-800); }
+
+    .logo-swatch .mark {
+      width: 48px;
+      height: 48px;
+    }
+
+    .logo-swatch .wordmark {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .logo-swatch.dark .wordmark { color: var(--white); }
+    .logo-swatch .wordmark span { color: var(--amber); }
+
+    .logo-swatch .sub {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .logo-swatch.dark .sub { color: rgba(255,255,255,.5); }
+
+    /* ── Do/Don't grid ── */
+    .do-dont-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .rule-card {
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+      overflow: hidden;
+    }
+
+    .rule-card-header {
+      padding: 10px 16px;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .rule-card-header.do-h { background: #E8F5EE; color: var(--green-800); }
+    .rule-card-header.dont-h { background: #FDE8E8; color: #8B1A1A; }
+
+    .rule-card-body {
+      padding: 20px 16px;
+      font-size: .88rem;
+      color: var(--ink-soft);
+    }
+
+    .rule-card-body ul { padding-left: 18px; }
+    .rule-card-body li { margin-bottom: 6px; }
+
+    /* ── Colour palette ── */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .colour-swatch {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--rule);
+    }
+
+    .colour-block {
+      height: 100px;
+    }
+
+    .colour-info {
+      padding: 12px;
+      background: var(--white);
+    }
+
+    .colour-name {
+      font-weight: 700;
+      font-size: .85rem;
+      margin-bottom: 2px;
+    }
+
+    .colour-hex {
+      font-size: .75rem;
+      color: var(--ink-soft);
+      font-family: monospace;
+    }
+
+    /* ── Colour ramps ── */
+    .ramp-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--rule);
+    }
+
+    .ramp-cell {
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8px;
+    }
+
+    .ramp-label {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      mix-blend-mode: difference;
+      filter: invert(1);
+    }
+
+    /* ── Type scale table ── */
+    .type-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+    }
+
+    .type-table th {
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 2px solid var(--rule);
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .type-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: middle;
+    }
+
+    .type-table tr:last-child td { border-bottom: none; }
+
+    /* ── Type pair ── */
+    .type-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .type-specimen {
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+      padding: 32px;
+    }
+
+    .type-specimen .family {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+
+    /* ── Contrast row ── */
+    .contrast-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .contrast-chip {
+      flex: 1 1 200px;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    .contrast-badge {
+      background: rgba(255,255,255,.2);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: .7rem;
+      font-family: monospace;
+    }
+
+    /* ── Voice grid ── */
+    .voice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .voice-card {
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+      padding: 24px;
+    }
+
+    .voice-card h3 {
+      font-size: .9rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .voice-card p {
+      font-size: .85rem;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+
+    .voice-example {
+      background: var(--green-100);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: .82rem;
+      font-style: italic;
+    }
+
+    /* ── Form inputs ── */
+    .input-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 8px;
+    }
+
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--rule);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      color: var(--ink);
+      background: var(--white);
+      transition: border-color .15s;
+      outline: none;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus,
+    .input-group textarea:focus {
+      border-color: var(--green-800);
+    }
+
+    .btn-primary {
+      background: var(--green-800);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-family: var(--font-sans);
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .btn-primary:hover { background: var(--green-700); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--green-800);
+      border: 1.5px solid var(--green-800);
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-family: var(--font-sans);
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .btn-secondary:hover { background: var(--green-100); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--green-900);
+      color: rgba(255,255,255,.5);
+      padding: 48px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: .78rem;
+    }
+
+    footer .footer-brand {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      color: var(--white);
+      letter-spacing: -.01em;
+    }
+
+    footer .footer-brand span { color: var(--amber); }
+
+    footer ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    footer a { color: rgba(255,255,255,.5); text-decoration: none; }
+    footer a:hover { color: var(--white); }
+
+    /* ── Mobile responsive ── */
+    @media (max-width: 768px) {
+      :root { --section-pad: 32px 16px; }
+
+      nav { padding: 12px 16px; }
+      nav ul { display: none; }
+
+      .hero { padding: 48px 20px; }
+
+      .trait-grid { grid-template-columns: 1fr; }
+      .logo-grid { grid-template-columns: 1fr; }
+      .do-dont-grid { grid-template-columns: 1fr; }
+      .palette-grid { grid-template-columns: repeat(2, 1fr); }
+      .ramp-grid { grid-template-columns: repeat(3, 1fr); }
+      .type-pair { grid-template-columns: 1fr; }
+      .voice-grid { grid-template-columns: 1fr; }
+      .input-row { grid-template-columns: 1fr; }
+
+      .section-title { font-size: 1.4rem; }
+
+      footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      footer ul { justify-content: center; flex-wrap: wrap; gap: 12px; }
+
+      .contrast-row { flex-direction: column; }
+    }
+
+    @media (max-width: 480px) {
+      .ramp-grid { grid-template-columns: repeat(2, 1fr); }
+      .palette-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a class="brand" href="#">
+      <svg width="28" height="28" viewBox="0 0 80 80" aria-hidden="true">
+        <rect width="80" height="80" rx="15" fill="#1B4D2E"/>
+        <path d="M13 63L13 21L40 47L67 21L67 63" fill="none" stroke="#C8771C" stroke-width="7.5" stroke-linecap="square" stroke-linejoin="miter"/>
+      </svg>
+      Mbare Direct
+    </a>
+    <ul>
+      <li><a href="#brand">Brand</a></li>
+      <li><a href="#logo">Logo</a></li>
+      <li><a href="#colour">Colour</a></li>
+      <li><a href="#type">Typography</a></li>
+      <li><a href="#voice">Voice</a></li>
+      <li><a href="#ui">UI</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <p class="section-label">Brand Guidelines</p>
+    <h1 class="hero-wordmark">Mbare<span>Direct</span></h1>
+    <p class="hero-tagline">Zimbabwe's Buyer-First Marketplace</p>
+    <p class="hero-meta">Version 1.0 · Confidential</p>
+  </header>
+
+  <!-- Brand Traits -->
+  <section id="brand">
+    <p class="section-label">Our Brand</p>
+    <h2 class="section-title">Four traits that define us</h2>
+    <p class="section-desc">Every design decision — colour, type, copy, layout — should reinforce at least one of these traits.</p>
+    <div class="trait-grid">
+      <div class="trait-card">
+        <div class="num">01</div>
+        <h3>Trustworthy</h3>
+        <p>Buyers come to us because we protect them first. Verified sellers, transparent pricing.</p>
+      </div>
+      <div class="trait-card">
+        <div class="num">02</div>
+        <h3>Grounded</h3>
+        <p>We speak plainly. No jargon, no hype — just clear, honest language rooted in Zimbabwe.</p>
+      </div>
+      <div class="trait-card">
+        <div class="num">03</div>
+        <h3>Energetic</h3>
+        <p>Markets are alive. Our voice has pace; our layouts breathe; nothing feels static.</p>
+      </div>
+      <div class="trait-card">
+        <div class="num">04</div>
+        <h3>Warm</h3>
+        <p>The amber accent carries the heat of Mbare market. We are human, not corporate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Logo -->
+  <section id="logo">
+    <p class="section-label">Logo System</p>
+    <h2 class="section-title">The mark & wordmark</h2>
+    <p class="section-desc">The brand mark is an M drawn as a single continuous stroke — a nod to the market's energy and the movement of goods. Use the full lockup whenever space allows.</p>
+    <div class="logo-grid">
+      <div class="logo-swatch">
+        <svg class="mark" viewBox="0 0 80 80" aria-label="Mbare Direct brand mark on light">
+          <rect width="80" height="80" rx="15" fill="#1B4D2E"/>
+          <path d="M13 63L13 21L40 47L67 21L67 63" fill="none" stroke="#C8771C" stroke-width="7.5" stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+        <div class="wordmark">Mbare<span>Direct</span></div>
+        <div class="sub">On light — primary lockup</div>
+      </div>
+      <div class="logo-swatch dark">
+        <svg class="mark" viewBox="0 0 80 80" aria-label="Mbare Direct brand mark on dark">
+          <rect width="80" height="80" rx="15" fill="#1B4D2E"/>
+          <path d="M13 63L13 21L40 47L67 21L67 63" fill="none" stroke="#C8771C" stroke-width="7.5" stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+        <div class="wordmark">Mbare<span>Direct</span></div>
+        <div class="sub">On dark — reversed lockup</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px;">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;">Logo usage rules</h3>
+      <div class="do-dont-grid">
+        <div class="rule-card">
+          <div class="rule-card-header do-h">✓ Do</div>
+          <div class="rule-card-body">
+            <ul>
+              <li>Always use the approved SVG source files</li>
+              <li>Maintain the minimum clear space (= height of the "M" stroke)</li>
+              <li>Use on the approved brand colours only</li>
+              <li>Scale proportionally from the centre</li>
+            </ul>
+          </div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-card-header dont-h">✗ Don't</div>
+          <div class="rule-card-body">
+            <ul>
+              <li>Don't recolour the mark outside brand colours</li>
+              <li>Don't add drop shadows or effects to the mark</li>
+              <li>Don't stretch, rotate, or distort the logo</li>
+              <li>Don't place the logo on busy backgrounds</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Colour -->
+  <section id="colour">
+    <p class="section-label">Colour</p>
+    <h2 class="section-title">Palette & usage</h2>
+    <p class="section-desc">Our palette is rooted in the colours of the Mbare market — deep forest green for trust, amber gold for warmth and energy.</p>
+
+    <div class="palette-grid">
+      <div class="colour-swatch">
+        <div class="colour-block" style="background:#1B4D2E;"></div>
+        <div class="colour-info">
+          <div class="colour-name">Brand Green</div>
+          <div class="colour-hex">#1B4D2E</div>
+        </div>
+      </div>
+      <div class="colour-swatch">
+        <div class="colour-block" style="background:#C8771C;"></div>
+        <div class="colour-info">
+          <div class="colour-name">Brand Amber</div>
+          <div class="colour-hex">#C8771C</div>
+        </div>
+      </div>
+      <div class="colour-swatch">
+        <div class="colour-block" style="background:#FFFFFF; border-bottom:1px solid #E0E0E0;"></div>
+        <div class="colour-info">
+          <div class="colour-name">White</div>
+          <div class="colour-hex">#FFFFFF</div>
+        </div>
+      </div>
+      <div class="colour-swatch">
+        <div class="colour-block" style="background:#1A1A1A;"></div>
+        <div class="colour-info">
+          <div class="colour-name">Ink</div>
+          <div class="colour-hex">#1A1A1A</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;">Green ramp</h3>
+      <div class="ramp-grid" style="margin-bottom:16px;">
+        <div class="ramp-cell" style="background:#E8F5EE;"><span class="ramp-label">100</span></div>
+        <div class="ramp-cell" style="background:#B8DACA;"><span class="ramp-label">200</span></div>
+        <div class="ramp-cell" style="background:#7CBBA0;"><span class="ramp-label">300</span></div>
+        <div class="ramp-cell" style="background:#3D8A62;"><span class="ramp-label">500</span></div>
+        <div class="ramp-cell" style="background:#1B4D2E;"><span class="ramp-label">800</span></div>
+        <div class="ramp-cell" style="background:#0D2B18;"><span class="ramp-label">900</span></div>
+      </div>
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;">Amber ramp</h3>
+      <div class="ramp-grid">
+        <div class="ramp-cell" style="background:#FDF3E3;"><span class="ramp-label">100</span></div>
+        <div class="ramp-cell" style="background:#F8DFB5;"><span class="ramp-label">200</span></div>
+        <div class="ramp-cell" style="background:#F0C37A;"><span class="ramp-label">300</span></div>
+        <div class="ramp-cell" style="background:#DCA043;"><span class="ramp-label">500</span></div>
+        <div class="ramp-cell" style="background:#C8771C;"><span class="ramp-label">800</span></div>
+        <div class="ramp-cell" style="background:#8A4E0A;"><span class="ramp-label">900</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;">Contrast ratios</h3>
+      <div class="contrast-row">
+        <div class="contrast-chip" style="background:#1B4D2E;color:#FFFFFF;">
+          White on Brand Green
+          <span class="contrast-badge">7.3:1 AAA</span>
+        </div>
+        <div class="contrast-chip" style="background:#C8771C;color:#FFFFFF;">
+          White on Amber
+          <span class="contrast-badge">3.1:1 AA</span>
+        </div>
+        <div class="contrast-chip" style="background:#E8F5EE;color:#1B4D2E;">
+          Brand Green on 100
+          <span class="contrast-badge">6.1:1 AA</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Typography -->
+  <section id="type">
+    <p class="section-label">Typography</p>
+    <h2 class="section-title">Type system</h2>
+    <p class="section-desc">Two typefaces: DM Serif Display for expressive headlines and wordmarks; DM Sans for all body, UI, and functional text.</p>
+
+    <div class="type-pair" style="margin-bottom:40px;">
+      <div class="type-specimen">
+        <div class="family">DM Serif Display · Headlines</div>
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:2.4rem;line-height:1.1;letter-spacing:-.02em;color:#1B4D2E;">Zimbabwe's Buyer-First Marketplace</div>
+      </div>
+      <div class="type-specimen">
+        <div class="family">DM Sans · Body & UI</div>
+        <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:1rem;line-height:1.65;color:#4A4A4A;">Post a need. Get competitive pitches from verified sellers. Agriculture, Construction, and Transport — all in one place.</div>
+      </div>
+    </div>
+
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Size</th>
+          <th>Weight</th>
+          <th>Usage</th>
+          <th>Preview</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>display</code></td>
+          <td>96px / 6rem</td>
+          <td>400 (Serif)</td>
+          <td>Hero wordmarks</td>
+          <td><span style="font-family:'DM Serif Display',serif;font-size:2rem;">Mbare</span></td>
+        </tr>
+        <tr>
+          <td><code>h1</code></td>
+          <td>48px / 3rem</td>
+          <td>700</td>
+          <td>Page titles</td>
+          <td><span style="font-size:1.5rem;font-weight:700;">Brand Guide</span></td>
+        </tr>
+        <tr>
+          <td><code>h2</code></td>
+          <td>32px / 2rem</td>
+          <td>700</td>
+          <td>Section heads</td>
+          <td><span style="font-size:1.2rem;font-weight:700;">Colour Palette</span></td>
+        </tr>
+        <tr>
+          <td><code>body</code></td>
+          <td>16px / 1rem</td>
+          <td>400</td>
+          <td>Body copy</td>
+          <td><span style="font-size:.88rem;">Regular body text here.</span></td>
+        </tr>
+        <tr>
+          <td><code>label</code></td>
+          <td>12px / .75rem</td>
+          <td>700</td>
+          <td>Form labels, captions</td>
+          <td><span style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Input Label</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Voice & Tone -->
+  <section id="voice">
+    <p class="section-label">Voice & Tone</p>
+    <h2 class="section-title">How we speak</h2>
+    <p class="section-desc">Our voice is consistent. Our tone adapts to context — celebratory in wins, plain and calm in errors, urgent in time-sensitive moments.</p>
+    <div class="voice-grid">
+      <div class="voice-card">
+        <h3>Buyers</h3>
+        <p>Empowering language. You are in control — sellers compete for you.</p>
+        <div class="voice-example">"Post your need in 60 seconds. Let sellers pitch to you."</div>
+      </div>
+      <div class="voice-card">
+        <h3>Sellers</h3>
+        <p>Respect and partnership. We help you reach ready buyers.</p>
+        <div class="voice-example">"Verified sellers unlock 10× more pitch opportunities."</div>
+      </div>
+      <div class="voice-card">
+        <h3>Errors</h3>
+        <p>Plain and helpful. No blame, always an action step.</p>
+        <div class="voice-example">"We couldn't send your pitch — check your connection and try again."</div>
+      </div>
+      <div class="voice-card">
+        <h3>Success states</h3>
+        <p>Warm and specific. Tell the user exactly what happened.</p>
+        <div class="voice-example">"Pitch sent! Taurai will see it within the hour."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UI Components -->
+  <section id="ui">
+    <p class="section-label">UI Components</p>
+    <h2 class="section-title">Buttons & form inputs</h2>
+    <p class="section-desc">Components follow an 8px grid and use 8px border-radius. Touch targets are a minimum 44px tall on mobile.</p>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px;">
+      <button class="btn-primary">Post a Need</button>
+      <button class="btn-secondary">View Pitches</button>
+      <button class="btn-primary" style="background:#C8771C;">Join the Club</button>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>What do you need?</label>
+        <input type="text" placeholder="e.g. 5 tonnes of maize">
+      </div>
+      <div class="input-group">
+        <label>Category</label>
+        <select>
+          <option>Agriculture</option>
+          <option>Construction</option>
+          <option>Transport</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Harare, Bulawayo">
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">Mbare<span>Direct</span></div>
+    <span>© 2025 Mbare Direct · Zimbabwe's Buyer-First Marketplace</span>
+    <ul>
+      <li><a href="#">Terms</a></li>
+      <li><a href="#">Privacy</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </footer>
+
+</body>
+</html>
