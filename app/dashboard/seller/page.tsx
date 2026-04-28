@@ -123,21 +123,37 @@ export default function SellerDashboardPage() {
 
   async function submitRating(pitchId: string) {
     if (!userId) return
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('reliability_score, reliability_count')
-      .eq('id', userId)
+
+    // Get the buyer's ID from the pitch's request
+    const { data: pitchData } = await supabase
+      .from('pitches')
+      .select('request:requests(buyer_id)')
+      .eq('id', pitchId)
       .single()
 
-    if (profileData) {
-      const newCount = (profileData.reliability_count ?? 0) + 1
+    const buyerId = (pitchData?.request as { buyer_id: string } | null)?.buyer_id
+    if (!buyerId) {
+      setShowRating(null)
+      window.location.reload()
+      return
+    }
+
+    // Update the buyer's reliability score
+    const { data: buyerProfile } = await supabase
+      .from('profiles')
+      .select('reliability_score, reliability_count')
+      .eq('id', buyerId)
+      .single()
+
+    if (buyerProfile) {
+      const newCount = (buyerProfile.reliability_count ?? 0) + 1
       const newScore =
-        ((profileData.reliability_score ?? 0) * (newCount - 1) + rating) / newCount
+        ((buyerProfile.reliability_score ?? 0) * (newCount - 1) + rating) / newCount
 
       await supabase
         .from('profiles')
         .update({ reliability_score: newScore, reliability_count: newCount })
-        .eq('id', userId)
+        .eq('id', buyerId)
     }
 
     setShowRating(null)

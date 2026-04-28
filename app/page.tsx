@@ -5,6 +5,23 @@ export const revalidate = 60
 
 const CATEGORIES = ['All', 'Agriculture', 'Construction', 'Transport'] as const
 
+interface RequestRow {
+  id: string
+  category: string
+  item: string
+  quantity: string
+  location: string
+  target_budget_usd: number
+  created_at: string
+  status: string
+  whatsapp_views: number
+  buyer:
+    | { full_name: string; reliability_score: number; reliability_count: number }[]
+    | { full_name: string; reliability_score: number; reliability_count: number }
+    | null
+  pitches: { count: number }[]
+}
+
 export default async function Home({
   searchParams,
 }: {
@@ -101,7 +118,7 @@ export default async function Home({
         </div>
       ) : (
         <div className="space-y-3">
-          {requests.map((req: any) => (
+          {requests.map((req: RequestRow) => (
             <RequestCard
               key={req.id}
               request={{
