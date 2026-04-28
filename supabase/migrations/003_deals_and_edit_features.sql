@@ -10,7 +10,8 @@
 -- granting the user a free year (subscription_expires_at extended by 1 year).
 alter table profiles
   add column if not exists on_platform_deals_count int not null default 0,
-  add column if not exists fee_discount_pct        numeric(5,2) not null default 0;
+  add column if not exists fee_discount_pct        numeric(3,0) not null default 0
+    check (fee_discount_pct between 0 and 100);
 
 -- ── 2. Allow 'purchased' as a requests status ─────────────────
 -- Drop the existing check constraint and recreate it with 'purchased'.

@@ -57,7 +57,10 @@ function isWithinEditWindow(createdAt: string): boolean {
 export default function BuyerDashboardClient({ userId, priceFloors, myRequests: initialRequests }: Props) {
   const supabase = createClient()
 
-  const [myRequests, setMyRequests] = useState<MyRequest[]>(initialRequests)
+  // myRequests is used read-only; the page is reloaded after any mutation.
+  // Kept as a local const alias so future optimistic-update code can add
+  // useState here without changing the rest of the component.
+  const myRequests = initialRequests
 
   // ── New-request form ─────────────────────────────────────────────────────
   const [showForm, setShowForm] = useState(false)
@@ -275,9 +278,6 @@ export default function BuyerDashboardClient({ userId, priceFloors, myRequests: 
     }, 1800)
   }
 
-  // Suppress unused-variable lint warning — setMyRequests is kept for future
-  // real-time updates without full page reload
-  void setMyRequests
 
   // ────────────────────────────────────────────────────────────────────────
   // Render
@@ -604,7 +604,7 @@ export default function BuyerDashboardClient({ userId, priceFloors, myRequests: 
                     {dealRequest.pitches
                       .filter((p) => p.seller_id)
                       .map((p) => (
-                        <option key={p.seller_id} value={p.seller_id}>
+                        <option key={p.id} value={p.seller_id}>
                           {p.seller?.full_name ?? p.seller_id} — {formatUSD(p.price_usd)}
                         </option>
                       ))}

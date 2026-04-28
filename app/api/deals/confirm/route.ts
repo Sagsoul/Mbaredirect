@@ -115,15 +115,15 @@ async function applyFeeReduction(
 
   // At 50 on-platform deals the user earns a free year.
   // Extend subscription_expires_at by 1 year from whichever is later:
-  // the current expiry or today (in case it has already lapsed).
+  // the current expiry or today (in case the subscription has already lapsed).
   if (newCount === 50) {
-    const base = profile.subscription_expires_at
-      ? new Date(profile.subscription_expires_at)
-      : new Date(now)
-    // Ensure we extend from at least today
-    if (base < new Date(now)) base.setTime(new Date(now).getTime())
-    base.setFullYear(base.getFullYear() + 1)
-    updates.subscription_expires_at = base.toISOString()
+    const expiryMs = profile.subscription_expires_at
+      ? new Date(profile.subscription_expires_at).getTime()
+      : 0
+    const baseMs = Math.max(expiryMs, new Date(now).getTime())
+    const extended = new Date(baseMs)
+    extended.setFullYear(extended.getFullYear() + 1)
+    updates.subscription_expires_at = extended.toISOString()
   }
 
   await admin.from('profiles').update(updates).eq('id', userId)
