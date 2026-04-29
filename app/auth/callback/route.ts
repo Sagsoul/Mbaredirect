@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // For explicit next params (e.g. password-reset recovery links) honour them;
+      // For explicit next params (e.g. password-reset recovery links) honor them;
       // otherwise fall back to /verify which will redirect verified users appropriately
       return NextResponse.redirect(`${origin}${hasExplicitNext ? next : '/verify'}`)
     }
