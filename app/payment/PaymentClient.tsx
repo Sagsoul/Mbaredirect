@@ -1,5 +1,5 @@
 // Requires a `payments` table: id uuid pk, user_id uuid fk profiles, ecocash_ref text,
-// amount_usd numeric, payment_type text, status text default 'pending', created_at timestamptz default now()
+// payment_type text, status text default 'pending', created_at timestamptz default now()
 
 'use client'
 
@@ -15,8 +15,6 @@ export default function PaymentClient({
   const supabase = createClient()
 
   const [ecocashRef, setEcocashRef] = useState('')
-  const [amountUsd, setAmountUsd] = useState('')
-  const [paymentType, setPaymentType] = useState<'membership' | 'deal_fee'>('membership')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -29,18 +27,13 @@ export default function PaymentClient({
       setError('Please enter your EcoCash reference.')
       return
     }
-    if (!amountUsd || parseFloat(amountUsd) <= 0) {
-      setError('Please enter a valid amount.')
-      return
-    }
 
     setSubmitting(true)
 
     const { error: insertError } = await supabase.from('payments').insert({
       user_id: user.id,
       ecocash_ref: ecocashRef.trim(),
-      amount_usd: parseFloat(amountUsd),
-      payment_type: paymentType,
+      payment_type: 'membership',
       status: 'pending',
     })
 
@@ -85,7 +78,7 @@ export default function PaymentClient({
           💳 Submit Payment
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-          To activate your account or pay a platform fee, send payment via EcoCash and enter the reference below for admin approval.
+          Send your annual membership fee via EcoCash to the number below, then enter your reference for admin approval.
         </p>
       </div>
 
@@ -98,6 +91,23 @@ export default function PaymentClient({
             {error}
           </div>
         )}
+
+        {/* EcoCash payment instructions */}
+        <div
+          className="rounded-lg px-4 py-3 space-y-1 text-sm"
+          style={{ backgroundColor: 'var(--green-pale)', border: '1px solid var(--green-light)' }}
+        >
+          <p className="font-semibold" style={{ color: '#065f46' }}>Send payment via EcoCash to:</p>
+          <p style={{ color: 'var(--charcoal)' }}>
+            📱 <strong>0788844602</strong>
+          </p>
+          <p style={{ color: 'var(--charcoal)' }}>
+            👤 <strong>Shingai Gunha</strong>
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+            After sending, enter your EcoCash transaction reference below.
+          </p>
+        </div>
 
         <div className="space-y-1">
           <label htmlFor="ecocashRef" className="block text-sm font-medium text-slate-700">
@@ -112,43 +122,6 @@ export default function PaymentClient({
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none"
             placeholder="e.g. EC12345678"
           />
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor="amountUsd" className="block text-sm font-medium text-slate-700">
-            Amount Paid (USD)
-          </label>
-          <input
-            id="amountUsd"
-            type="number"
-            required
-            min="0.01"
-            step="0.01"
-            value={amountUsd}
-            onChange={(e) => setAmountUsd(e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none"
-            placeholder="0.00"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-700">Payment Type</label>
-          {([
-            { value: 'membership', label: 'Membership fee' },
-            { value: 'deal_fee', label: 'Platform fee (deal)' },
-          ] as const).map((opt) => (
-            <label key={opt.value} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
-              <input
-                type="radio"
-                name="paymentType"
-                value={opt.value}
-                checked={paymentType === opt.value}
-                onChange={() => setPaymentType(opt.value)}
-                className="accent-green-700"
-              />
-              {opt.label}
-            </label>
-          ))}
         </div>
 
         <button
