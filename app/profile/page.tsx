@@ -15,11 +15,5 @@ export default async function ProfilePage() {
     redirect('/auth/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, full_name, phone, role, status, avatar_url, created_at, subscription_expires_at')
-    .eq('id', user.id)
-    .single()
-
-  return <ProfileClient user={user} profile={profile} />
+  return <ProfileClient user={user} profile={null} />
 }
