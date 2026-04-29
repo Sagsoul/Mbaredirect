@@ -37,7 +37,7 @@ export default function DonatePage() {
         </div>
 
         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-          Send any amount you can. No amount is too small — every dollar helps
+          Send any amount you can towards the subsidy fee — every dollar helps
           keep the platform free for verified traders.
         </p>
       </div>
