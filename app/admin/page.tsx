@@ -52,25 +52,37 @@ export default async function AdminPage() {
     {},
   )
 
-  // Fetch pending payments joined with profile full_name
-  const { data: pendingPaymentsRaw } = await supabase
+  // Step 1: Fetch pending payments (no join)
+  const { data: paymentsRaw } = await supabase
     .from('payments')
-    .select('id, user_id, ecocash_ref, amount_usd, created_at, profiles(full_name, subscription_expires_at)')
+    .select('id, user_id, ecocash_ref, amount_usd, created_at')
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
 
-  const pendingPayments = (pendingPaymentsRaw ?? []).map((p) => {
-    const profile = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
-    return {
-      id: p.id,
-      user_id: p.user_id,
-      ecocash_ref: p.ecocash_ref,
-      amount_usd: p.amount_usd,
-      created_at: p.created_at,
-      full_name: profile?.full_name ?? 'Unknown',
-      subscription_expires_at: profile?.subscription_expires_at ?? null,
-    }
-  })
+  // Step 2: Fetch profiles for those user_ids
+  const userIds = (paymentsRaw ?? []).map((p) => p.user_id)
+
+  const { data: paymentProfiles } = userIds.length > 0
+    ? await supabase
+        .from('profiles')
+        .select('id, full_name, subscription_expires_at')
+        .in('id', userIds)
+    : { data: [] }
+
+  const profileMap = Object.fromEntries(
+    (paymentProfiles ?? []).map((p) => [p.id, p])
+  )
+
+  // Step 3: Combine
+  const pendingPayments = (paymentsRaw ?? []).map((p) => ({
+    id: p.id,
+    user_id: p.user_id,
+    ecocash_ref: p.ecocash_ref,
+    amount_usd: p.amount_usd,
+    created_at: p.created_at,
+    full_name: profileMap[p.user_id]?.full_name ?? 'Unknown',
+    subscription_expires_at: profileMap[p.user_id]?.subscription_expires_at ?? null,
+  }))
 
   return (
     <AdminDashboardClient
