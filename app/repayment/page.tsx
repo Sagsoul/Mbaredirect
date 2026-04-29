@@ -13,11 +13,5 @@ export default async function RepaymentPage() {
     redirect('/auth/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, phone, role, status')
-    .eq('id', user.id)
-    .single()
-
-  return <RepaymentClient user={user} profile={profile} />
+  return <RepaymentClient user={user} />
 }

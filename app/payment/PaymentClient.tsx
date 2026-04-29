@@ -7,19 +7,10 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
-interface Profile {
-  full_name: string
-  phone: string | null
-  role: string
-  status: string
-}
-
 export default function PaymentClient({
   user,
-  profile,
 }: {
   user: User
-  profile: Profile | null
 }) {
   const supabase = createClient()
 
