@@ -12,13 +12,15 @@ const REJECTION_REASONS = [
   'Custom…',
 ]
 
+const STATUS_OPTIONS = ['verified', 'pending', 'unverified', 'rejected', 'browser_only'] as const
+
 const ANNUAL_MEMBERSHIP_USD = 10
 
 function calcSubscriptionDays(amountUsd: number): number {
   return Math.round((amountUsd / ANNUAL_MEMBERSHIP_USD) * 365)
 }
 
-interface PendingUser {
+interface AdminUser {
   id: string
   full_name: string
   phone?: string
@@ -30,23 +32,56 @@ interface PendingUser {
   selfie_signed_url?: string | null
   created_at: string
   rejection_reason?: string | null
+  status: string
+  subscription_expires_at?: string | null
 }
 
 interface Props {
-  pendingUsers: PendingUser[]
+  allUsers: AdminUser[]
   statCounts: Record<string, number>
 }
 
-export default function AdminDashboardClient({ pendingUsers: initial, statCounts }: Props) {
+export default function AdminDashboardClient({ allUsers: initial, statCounts }: Props) {
   const supabase = createClient()
 
-  const [users, setUsers] = useState<PendingUser[]>(initial)
+  const [activeTab, setActiveTab] = useState<string>('pending')
+
+  const [usersByStatus, setUsersByStatus] = useState<Record<string, AdminUser[]>>(() => {
+    const grouped: Record<string, AdminUser[]> = {}
+    for (const u of initial) {
+      if (!grouped[u.status]) grouped[u.status] = []
+      grouped[u.status].push(u)
+    }
+    return grouped
+  })
+
+  const users = usersByStatus[activeTab] ?? []
+
   const [rejectUserId, setRejectUserId] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState(REJECTION_REASONS[0])
   const [customReason, setCustomReason] = useState('')
   const [loading, setLoading] = useState<string | null>(null)
   const [expandedImg, setExpandedImg] = useState<string | null>(null)
   const [approveAmount, setApproveAmount] = useState<Record<string, string>>({})
+
+  const [editStatusUserId, setEditStatusUserId] = useState<string | null>(null)
+  const [editStatusValue, setEditStatusValue] = useState<string>('pending')
+  const [editStatusSuccess, setEditStatusSuccess] = useState<string | null>(null)
+
+  function removeUserFromTab(userId: string, fromStatus: string) {
+    setUsersByStatus((prev) => ({
+      ...prev,
+      [fromStatus]: (prev[fromStatus] ?? []).filter((u) => u.id !== userId),
+    }))
+  }
+
+  function moveUserBetweenTabs(user: AdminUser, fromStatus: string, toStatus: string, extraFields?: Partial<AdminUser>) {
+    setUsersByStatus((prev) => ({
+      ...prev,
+      [fromStatus]: (prev[fromStatus] ?? []).filter((u) => u.id !== user.id),
+      [toStatus]: [...(prev[toStatus] ?? []), { ...user, status: toStatus, ...extraFields }],
+    }))
+  }
 
   async function approve(userId: string, amountUsd: number) {
     setLoading(userId)
@@ -69,7 +104,7 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
       .eq('user_id', userId)
       .eq('status', 'pending')
 
-    setUsers((prev) => prev.filter((u) => u.id !== userId))
+    removeUserFromTab(userId, 'pending')
     setLoading(null)
   }
 
@@ -91,8 +126,36 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
       .eq('user_id', userId)
       .eq('status', 'pending')
 
-    setUsers((prev) => prev.filter((u) => u.id !== userId))
+    removeUserFromTab(userId, 'pending')
     setRejectUserId(null)
+    setLoading(null)
+  }
+
+  async function saveStatus(user: AdminUser, newStatus: string, hasExpiry: boolean) {
+    setLoading(user.id)
+    const expiresAt =
+      newStatus === 'verified' && !hasExpiry
+        ? (() => {
+            const d = new Date()
+            d.setDate(d.getDate() + 365)
+            return d
+          })()
+        : null
+
+    const updates: Record<string, unknown> = { status: newStatus }
+    if (expiresAt) updates.subscription_expires_at = expiresAt.toISOString()
+
+    const { error } = await supabase.from('profiles').update(updates).eq('id', user.id)
+
+    if (error) {
+      setLoading(null)
+      return
+    }
+
+    moveUserBetweenTabs(user, user.status, newStatus, expiresAt ? { subscription_expires_at: expiresAt.toISOString() } : undefined)
+    setEditStatusUserId(null)
+    setEditStatusSuccess(user.id)
+    setTimeout(() => setEditStatusSuccess(null), 3000)
     setLoading(null)
   }
 
@@ -100,165 +163,250 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
     <div className="space-y-6">
       <h1 className="text-xl font-bold text-slate-900">🛠️ Admin Dashboard</h1>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {['verified', 'pending', 'unverified', 'rejected', 'browser_only'].map((status) => (
-          <div key={status} className="bg-white rounded-xl border border-slate-100 p-3 text-center shadow-sm">
-            <p className="text-2xl font-bold text-green-700">{statCounts[status] ?? 0}</p>
-            <p className="text-xs text-slate-500 capitalize">{status.replace('_', ' ')}</p>
-          </div>
+      {/* Clickable status tabs */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {STATUS_OPTIONS.map((status) => (
+          <button
+            key={status}
+            onClick={() => setActiveTab(status)}
+            className={`rounded-xl border p-3 text-center shadow-sm transition-all ${
+              activeTab === status
+                ? 'bg-green-700 border-green-700'
+                : 'bg-white border-slate-100 hover:border-green-300'
+            }`}
+          >
+            <p className={`text-2xl font-bold ${activeTab === status ? 'text-white' : 'text-green-700'}`}>
+              {statCounts[status] ?? 0}
+            </p>
+            <p className={`text-xs capitalize ${activeTab === status ? 'text-green-100' : 'text-slate-500'}`}>
+              {status.replace('_', ' ')}
+            </p>
+          </button>
         ))}
       </div>
 
+      {/* User list for active tab */}
       <section className="space-y-4">
-        <h2 className="font-semibold text-slate-700">
-          Pending Verifications ({users.length})
+        <h2 className="font-semibold text-slate-700 capitalize">
+          {activeTab.replace('_', ' ')} Users ({users.length})
         </h2>
 
         {users.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-100 p-8 text-center text-slate-400">
-            <p className="text-3xl mb-2">🎉</p>
-            <p>All caught up! No pending verifications.</p>
+            {activeTab === 'pending' ? (
+              <>
+                <p className="text-3xl mb-2">🎉</p>
+                <p>All caught up! No pending verifications.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-3xl mb-2">📭</p>
+                <p>No {activeTab.replace('_', ' ')} users.</p>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
-            {users.map((u) => (
-              <div
-                key={u.id}
-                className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 space-y-3"
-              >
-                <div className="flex items-start justify-between gap-2 flex-wrap">
-                  <div>
-                    <p className="font-semibold text-slate-900">{u.full_name}</p>
-                    <p className="text-xs text-slate-500">
-                      EcoCash: <strong>{u.ecocash_name}</strong> · Ref: <strong>{u.ecocash_ref}</strong>
-                    </p>
-                    {u.phone && <p className="text-xs text-slate-400">📞 {u.phone}</p>}
-                    <p className="text-xs text-slate-400">Submitted: {formatDate(u.created_at)}</p>
-                  </div>
+            {users.map((u) => {
+              const hasExpiry = !!u.subscription_expires_at
+              const expiryDate = hasExpiry ? new Date(u.subscription_expires_at!) : null
+              const isExpired = expiryDate ? expiryDate < new Date() : false
 
-                  {/* Thumbnails */}
-                  <div className="flex gap-2">
-                    {u.national_id_signed_url && (
-                      <button
-                        onClick={() => setExpandedImg(u.national_id_signed_url!)}
-                        aria-label="View National ID document"
-                      >
-                        <img
-                          src={u.national_id_signed_url}
-                          alt="National ID"
-                          className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-700"
-                        />
-                      </button>
-                    )}
-                    {u.selfie_signed_url && (
-                      <button
-                        onClick={() => setExpandedImg(u.selfie_signed_url!)}
-                        aria-label="View selfie with ID"
-                      >
-                        <img
-                          src={u.selfie_signed_url}
-                          alt="Selfie with ID"
-                          className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-700"
-                        />
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="space-y-2">
-                  {/* Approval form */}
-                  <div className="flex flex-wrap items-end gap-2">
-                    <div className="space-y-1">
-                      <label className="block text-xs font-medium text-slate-600">
-                        Amount Paid (USD)
-                      </label>
-                      <input
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        placeholder="e.g. 10.00"
-                        value={approveAmount[u.id] ?? ''}
-                        onChange={(e) =>
-                          setApproveAmount((prev) => ({ ...prev, [u.id]: e.target.value }))
-                        }
-                        className="w-28 border border-slate-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/20"
-                      />
+              return (
+                <div
+                  key={u.id}
+                  className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 space-y-3"
+                >
+                  {/* User info row */}
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
+                    <div>
+                      <p className="font-semibold text-slate-900">{u.full_name}</p>
+                      {(u.ecocash_name || u.ecocash_ref) && (
+                        <p className="text-xs text-slate-500">
+                          EcoCash: <strong>{u.ecocash_name}</strong> · Ref: <strong>{u.ecocash_ref}</strong>
+                        </p>
+                      )}
+                      {u.phone && <p className="text-xs text-slate-400">📞 {u.phone}</p>}
+                      <p className="text-xs text-slate-400">Submitted: {formatDate(u.created_at)}</p>
+                      {/* Membership expiry */}
+                      {hasExpiry ? (
+                        <p className={`text-xs font-medium ${isExpired ? 'text-red-600' : 'text-green-700'}`}>
+                          {isExpired ? '⚠️ Expired' : '✅ Expires'}{' '}
+                          {expiryDate!.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-slate-400">No subscription</p>
+                      )}
                     </div>
-                    <button
-                      onClick={() => {
-                        const amt = parseFloat(approveAmount[u.id] ?? '')
-                        if (amt > 0) approve(u.id, amt)
-                      }}
-                      disabled={loading === u.id || !(parseFloat(approveAmount[u.id] ?? '') > 0)}
-                      className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
-                    >
-                      {loading === u.id ? '…' : '✅ Approve'}
-                    </button>
-                    <button
-                      onClick={() => setRejectUserId(u.id)}
-                      disabled={loading === u.id}
-                      className="rounded-lg px-4 py-2 font-semibold text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-                    >
-                      🚫 Reject
-                    </button>
-                  </div>
-                  {/* Live preview */}
-                  {(() => {
-                    const amt = parseFloat(approveAmount[u.id] ?? '')
-                    if (!(amt > 0)) return null
-                    const days = calcSubscriptionDays(amt)
-                    const expiry = new Date()
-                    expiry.setDate(expiry.getDate() + days)
-                    const expiryStr = expiry.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                    return (
-                      <p className="text-xs text-slate-500">
-                        = {days} day{days !== 1 ? 's' : ''} <span className="text-slate-400">(expires {expiryStr})</span>
-                      </p>
-                    )
-                  })()}
-                </div>
 
-                {/* Reject form */}
-                {rejectUserId === u.id && (
-                  <div className="border-t border-slate-100 pt-3 space-y-2">
-                    <label className="block text-sm font-medium text-slate-700">Rejection Reason</label>
-                    <select
-                      value={rejectReason}
-                      onChange={(e) => setRejectReason(e.target.value)}
-                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
-                    >
-                      {REJECTION_REASONS.map((r) => <option key={r}>{r}</option>)}
-                    </select>
-                    {rejectReason === 'Custom…' && (
-                      <input
-                        type="text"
-                        value={customReason}
-                        onChange={(e) => setCustomReason(e.target.value)}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
-                        placeholder="Describe the reason…"
-                      />
-                    )}
+                    {/* Document thumbnails */}
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => reject(u.id)}
-                        disabled={loading === u.id}
-                        className="rounded-lg px-4 py-2 font-semibold text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-                      >
-                        {loading === u.id ? '…' : 'Confirm Reject'}
-                      </button>
-                      <button
-                        onClick={() => setRejectUserId(null)}
-                        className="rounded-lg px-4 py-2 font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      >
-                        Cancel
-                      </button>
+                      {u.national_id_signed_url && (
+                        <button
+                          onClick={() => setExpandedImg(u.national_id_signed_url!)}
+                          aria-label="View National ID document"
+                        >
+                          <img
+                            src={u.national_id_signed_url}
+                            alt="National ID"
+                            className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-700"
+                          />
+                        </button>
+                      )}
+                      {u.selfie_signed_url && (
+                        <button
+                          onClick={() => setExpandedImg(u.selfie_signed_url!)}
+                          aria-label="View selfie with ID"
+                        >
+                          <img
+                            src={u.selfie_signed_url}
+                            alt="Selfie with ID"
+                            className="w-16 h-16 object-cover rounded-lg border border-slate-200 hover:ring-2 hover:ring-green-700"
+                          />
+                        </button>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Approve / Reject — only on Pending tab */}
+                  {activeTab === 'pending' && (
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-end gap-2">
+                        <div className="space-y-1">
+                          <label className="block text-xs font-medium text-slate-600">
+                            Amount Paid (USD)
+                          </label>
+                          <input
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="e.g. 10.00"
+                            value={approveAmount[u.id] ?? ''}
+                            onChange={(e) =>
+                              setApproveAmount((prev) => ({ ...prev, [u.id]: e.target.value }))
+                            }
+                            className="w-28 border border-slate-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                          />
+                        </div>
+                        <button
+                          onClick={() => {
+                            const amt = parseFloat(approveAmount[u.id] ?? '')
+                            if (amt > 0) approve(u.id, amt)
+                          }}
+                          disabled={loading === u.id || !(parseFloat(approveAmount[u.id] ?? '') > 0)}
+                          className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
+                        >
+                          {loading === u.id ? '…' : '✅ Approve'}
+                        </button>
+                        <button
+                          onClick={() => setRejectUserId(u.id)}
+                          disabled={loading === u.id}
+                          className="rounded-lg px-4 py-2 font-semibold text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                        >
+                          🚫 Reject
+                        </button>
+                      </div>
+                      {/* Live expiry preview */}
+                      {(() => {
+                        const amt = parseFloat(approveAmount[u.id] ?? '')
+                        if (!(amt > 0)) return null
+                        const days = calcSubscriptionDays(amt)
+                        const expiry = new Date()
+                        expiry.setDate(expiry.getDate() + days)
+                        const expiryStr = expiry.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                        return (
+                          <p className="text-xs text-slate-500">
+                            = {days} day{days !== 1 ? 's' : ''}{' '}
+                            <span className="text-slate-400">(expires {expiryStr})</span>
+                          </p>
+                        )
+                      })()}
+                      {/* Reject form */}
+                      {rejectUserId === u.id && (
+                        <div className="border-t border-slate-100 pt-3 space-y-2">
+                          <label className="block text-sm font-medium text-slate-700">Rejection Reason</label>
+                          <select
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+                          >
+                            {REJECTION_REASONS.map((r) => <option key={r}>{r}</option>)}
+                          </select>
+                          {rejectReason === 'Custom…' && (
+                            <input
+                              type="text"
+                              value={customReason}
+                              onChange={(e) => setCustomReason(e.target.value)}
+                              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+                              placeholder="Describe the reason…"
+                            />
+                          )}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => reject(u.id)}
+                              disabled={loading === u.id}
+                              className="rounded-lg px-4 py-2 font-semibold text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                            >
+                              {loading === u.id ? '…' : 'Confirm Reject'}
+                            </button>
+                            <button
+                              onClick={() => setRejectUserId(null)}
+                              className="rounded-lg px-4 py-2 font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Edit Status — available on all tabs */}
+                  <div className="border-t border-slate-100 pt-3">
+                    {editStatusSuccess === u.id ? (
+                      <p className="text-xs font-medium text-green-700">✅ Status updated</p>
+                    ) : editStatusUserId === u.id ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <select
+                          value={editStatusValue}
+                          onChange={(e) => setEditStatusValue(e.target.value)}
+                          className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                        >
+                          {STATUS_OPTIONS.map((s) => (
+                            <option key={s} value={s}>
+                              {s.replace('_', ' ')}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => saveStatus(u, editStatusValue, hasExpiry)}
+                          disabled={loading === u.id}
+                          className="rounded-lg px-3 py-1.5 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
+                        >
+                          {loading === u.id ? '…' : 'Save'}
+                        </button>
+                        <button
+                          onClick={() => setEditStatusUserId(null)}
+                          className="rounded-lg px-3 py-1.5 font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setEditStatusUserId(u.id)
+                          setEditStatusValue(u.status)
+                        }}
+                        className="text-xs font-medium text-slate-500 hover:text-slate-700"
+                      >
+                        ✏️ Edit Status
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
       </section>

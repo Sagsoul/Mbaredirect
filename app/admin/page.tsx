@@ -16,15 +16,14 @@ export default async function AdminPage() {
 
   if (!profile || profile.role !== 'admin') redirect('/')
 
-  const { data: pendingUsers } = await supabase
+  const { data: allUsers } = await supabase
     .from('profiles')
-    .select('id, full_name, phone, ecocash_name, ecocash_ref, national_id_url, selfie_url, created_at, rejection_reason')
-    .eq('status', 'pending')
+    .select('id, full_name, phone, ecocash_name, ecocash_ref, national_id_url, selfie_url, created_at, rejection_reason, status, subscription_expires_at')
     .order('created_at', { ascending: true })
 
   // Generate signed URLs for private storage
   const usersWithUrls = await Promise.all(
-    (pendingUsers ?? []).map(async (u) => {
+    (allUsers ?? []).map(async (u) => {
       const [idSign, selfieSign] = await Promise.all([
         u.national_id_url
           ? supabase.storage.from('verifications').createSignedUrl(u.national_id_url, 3600)
@@ -55,7 +54,7 @@ export default async function AdminPage() {
 
   return (
     <AdminDashboardClient
-      pendingUsers={usersWithUrls}
+      allUsers={usersWithUrls}
       statCounts={statCounts}
     />
   )
