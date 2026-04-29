@@ -52,10 +52,31 @@ export default async function AdminPage() {
     {},
   )
 
+  // Fetch pending payments joined with profile full_name
+  const { data: pendingPaymentsRaw } = await supabase
+    .from('payments')
+    .select('id, user_id, ecocash_ref, amount_usd, created_at, profiles(full_name, subscription_expires_at)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+
+  const pendingPayments = (pendingPaymentsRaw ?? []).map((p) => {
+    const profile = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
+    return {
+      id: p.id,
+      user_id: p.user_id,
+      ecocash_ref: p.ecocash_ref,
+      amount_usd: p.amount_usd,
+      created_at: p.created_at,
+      full_name: profile?.full_name ?? 'Unknown',
+      subscription_expires_at: profile?.subscription_expires_at ?? null,
+    }
+  })
+
   return (
     <AdminDashboardClient
       allUsers={usersWithUrls}
       statCounts={statCounts}
+      pendingPayments={pendingPayments}
     />
   )
 }

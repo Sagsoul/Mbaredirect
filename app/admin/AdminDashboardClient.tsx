@@ -36,12 +36,23 @@ interface AdminUser {
   subscription_expires_at?: string | null
 }
 
+interface PendingPayment {
+  id: string
+  user_id: string
+  ecocash_ref: string
+  amount_usd: number | null
+  created_at: string
+  full_name: string
+  subscription_expires_at: string | null
+}
+
 interface Props {
   allUsers: AdminUser[]
   statCounts: Record<string, number>
+  pendingPayments: PendingPayment[]
 }
 
-export default function AdminDashboardClient({ allUsers: initial, statCounts }: Props) {
+export default function AdminDashboardClient({ allUsers: initial, statCounts, pendingPayments: initialPayments }: Props) {
   const supabase = createClient()
 
   const [activeTab, setActiveTab] = useState<string>('pending')
@@ -57,12 +68,14 @@ export default function AdminDashboardClient({ allUsers: initial, statCounts }: 
 
   const users = usersByStatus[activeTab] ?? []
 
+  const [payments, setPayments] = useState<PendingPayment[]>(initialPayments)
   const [rejectUserId, setRejectUserId] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState(REJECTION_REASONS[0])
   const [customReason, setCustomReason] = useState('')
   const [loading, setLoading] = useState<string | null>(null)
   const [expandedImg, setExpandedImg] = useState<string | null>(null)
   const [approveAmount, setApproveAmount] = useState<Record<string, string>>({})
+  const [paymentAmount, setPaymentAmount] = useState<Record<string, string>>({})
 
   const [editStatusUserId, setEditStatusUserId] = useState<string | null>(null)
   const [editStatusValue, setEditStatusValue] = useState<string>('pending')
@@ -128,6 +141,55 @@ export default function AdminDashboardClient({ allUsers: initial, statCounts }: 
 
     removeUserFromTab(userId, 'pending')
     setRejectUserId(null)
+    setLoading(null)
+  }
+
+  async function approvePayment(paymentId: string, userId: string, amountUsd: number, currentExpiry: string | null) {
+    setLoading(paymentId)
+    const days = calcSubscriptionDays(amountUsd)
+    const now = new Date()
+    const base = currentExpiry && new Date(currentExpiry) > now ? new Date(currentExpiry) : now
+    const expiresAt = new Date(base)
+    expiresAt.setDate(expiresAt.getDate() + days)
+
+    const { error: paymentError } = await supabase
+      .from('payments')
+      .update({ status: 'approved', approved_at: now.toISOString() })
+      .eq('id', paymentId)
+
+    if (paymentError) {
+      setLoading(null)
+      return
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ status: 'verified', subscription_expires_at: expiresAt.toISOString() })
+      .eq('id', userId)
+
+    if (profileError) {
+      setLoading(null)
+      return
+    }
+
+    setPayments((prev) => prev.filter((p) => p.id !== paymentId))
+    setLoading(null)
+  }
+
+  async function rejectPayment(paymentId: string) {
+    setLoading(paymentId)
+
+    const { error } = await supabase
+      .from('payments')
+      .update({ status: 'rejected' })
+      .eq('id', paymentId)
+
+    if (error) {
+      setLoading(null)
+      return
+    }
+
+    setPayments((prev) => prev.filter((p) => p.id !== paymentId))
     setLoading(null)
   }
 
@@ -402,6 +464,100 @@ export default function AdminDashboardClient({ allUsers: initial, statCounts }: 
                       >
                         ✏️ Edit Status
                       </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* Pending Payments */}
+      <section className="space-y-4">
+        <h2 className="font-semibold text-slate-700">
+          💳 Pending Payments ({payments.length})
+        </h2>
+        <p className="text-xs text-slate-400">$10 USD = 1 year · pay any amount, get proportional days</p>
+
+        {payments.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-100 p-8 text-center text-slate-400">
+            <p className="text-3xl mb-2">💳</p>
+            <p>No pending payments.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {payments.map((p) => {
+              const amt = parseFloat(paymentAmount[p.id] ?? '')
+              const days = amt > 0 ? calcSubscriptionDays(amt) : null
+              const now = new Date()
+              const base = p.subscription_expires_at && new Date(p.subscription_expires_at) > now
+                ? new Date(p.subscription_expires_at)
+                : now
+              const expiryPreview = days !== null ? (() => {
+                const d = new Date(base)
+                d.setDate(d.getDate() + days)
+                return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+              })() : null
+              return (
+                <div
+                  key={p.id}
+                  className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 space-y-3"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-900">{p.full_name}</p>
+                    <p className="text-xs text-slate-500">EcoCash Ref: <strong>{p.ecocash_ref}</strong></p>
+                    {p.amount_usd != null && (
+                      <p className="text-xs text-slate-500">Amount submitted: <strong>${Number(p.amount_usd).toFixed(2)}</strong></p>
+                    )}
+                    <p className="text-xs text-slate-400">Submitted: {formatDate(p.created_at)}</p>
+                    {p.subscription_expires_at && (
+                      <p className="text-xs text-slate-400">
+                        Current expiry: {new Date(p.subscription_expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-end gap-2">
+                      <div className="space-y-1">
+                        <label className="block text-xs font-medium text-slate-600">
+                          Amount Paid (USD)
+                        </label>
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          placeholder="e.g. 10.00"
+                          value={paymentAmount[p.id] ?? ''}
+                          onChange={(e) =>
+                            setPaymentAmount((prev) => ({ ...prev, [p.id]: e.target.value }))
+                          }
+                          className="w-28 border border-slate-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (amt > 0) approvePayment(p.id, p.user_id, amt, p.subscription_expires_at)
+                        }}
+                        disabled={loading === p.id || !(amt > 0)}
+                        className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
+                      >
+                        {loading === p.id ? '…' : '✅ Approve'}
+                      </button>
+                      <button
+                        onClick={() => rejectPayment(p.id)}
+                        disabled={loading === p.id}
+                        className="rounded-lg px-4 py-2 font-semibold text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                      >
+                        🚫 Reject
+                      </button>
+                    </div>
+                    {days !== null && expiryPreview !== null && (
+                      <p className="text-xs text-slate-500">
+                        = {days} day{days !== 1 ? 's' : ''}{' '}
+                        <span className="text-slate-400">(expires {expiryPreview})</span>
+                      </p>
                     )}
                   </div>
                 </div>
