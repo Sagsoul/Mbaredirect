@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 type Step = 1 | 2 | 3
@@ -13,6 +14,8 @@ const STEPS = [
 
 export default function VerifyPage() {
   const supabase = createClient()
+  const searchParams = useSearchParams()
+  const emailConfirmed = searchParams.get('confirmed') === '1'
 
   const [step, setStep] = useState<Step>(1)
   const [ecocashRef, setEcocashRef] = useState('')
@@ -110,6 +113,13 @@ export default function VerifyPage() {
 
   return (
     <div className="max-w-sm mx-auto mt-8 space-y-6">
+      {/* Email confirmed banner */}
+      {emailConfirmed && (
+        <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 text-sm font-medium">
+          ✅ Email confirmed! Now complete your membership steps below.
+        </div>
+      )}
+
       {/* Step indicator */}
       <div className="flex items-center justify-center gap-0">
         {STEPS.map((s, i) => (

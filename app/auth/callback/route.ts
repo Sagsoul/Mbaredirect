@@ -7,8 +7,12 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
 
   // Validate `next` is a relative path to prevent open-redirect attacks
-  const rawNext = searchParams.get('next') ?? '/dashboard/buyer'
-  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/dashboard/buyer'
+  const rawNext = searchParams.get('next')
+  const hasExplicitNext = rawNext !== null
+  const next =
+    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+      ? rawNext
+      : '/verify'
 
   if (code) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -38,7 +42,26 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      // Check the user's verification status in the profiles table
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('id', user.id)
+          .single()
+
+        const status = profile?.status ?? null
+
+        // Unverified users (or missing profiles) must complete the onboarding flow
+        if (!status || status === 'unverified') {
+          return NextResponse.redirect(`${origin}/verify?confirmed=1`)
+        }
+      }
+
+      // For explicit next params (e.g. password-reset recovery links) honor them;
+      // otherwise fall back to /verify which will redirect verified users appropriately
+      return NextResponse.redirect(`${origin}${hasExplicitNext ? next : '/verify'}`)
     }
   }
 
