@@ -28,6 +28,7 @@ interface Profile {
   status: string
   avatar_url: string | null
   created_at: string
+  subscription_expires_at: string | null
 }
 
 function getInitials(name: string): string {
@@ -268,6 +269,30 @@ export default function ProfileClient({
           </p>
           <p className="font-bold mt-0.5" style={{ color: 'var(--charcoal)' }}>
             {formatMemberSince(createdAt)}
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="font-semibold" style={{ color: 'var(--text-muted)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            Expires
+          </p>
+          <p className="font-bold mt-0.5">
+            {(() => {
+              if (status !== 'verified' || !profile?.subscription_expires_at) {
+                return <span style={{ color: 'var(--text-muted)' }}>—</span>
+              }
+              const expiryDate = new Date(profile.subscription_expires_at)
+              const now = new Date()
+              const diffMs = expiryDate.getTime() - now.getTime()
+              const diffDays = diffMs / (1000 * 60 * 60 * 24)
+              const formatted = expiryDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+              if (diffMs < 0) {
+                return <span style={{ color: '#991b1b' }}>⚠ {formatted}</span>
+              }
+              if (diffDays <= 30) {
+                return <span style={{ color: '#92400e' }}>⏳ {formatted}</span>
+              }
+              return <span style={{ color: '#065f46' }}>{formatted}</span>
+            })()}
           </p>
         </div>
       </div>

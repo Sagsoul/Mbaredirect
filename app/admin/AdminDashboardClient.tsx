@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatDate } from '@/lib/utils'
-import { SUBSCRIPTION_DURATION_DAYS } from '@/lib/constants'
 
 const REJECTION_REASONS = [
   'Name Mismatch',
@@ -12,6 +11,12 @@ const REJECTION_REASONS = [
   'Duplicate account',
   'Custom…',
 ]
+
+const ANNUAL_MEMBERSHIP_USD = 10
+
+function calcSubscriptionDays(amountUsd: number): number {
+  return Math.round((amountUsd / ANNUAL_MEMBERSHIP_USD) * 365)
+}
 
 interface PendingUser {
   id: string
@@ -41,11 +46,13 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
   const [customReason, setCustomReason] = useState('')
   const [loading, setLoading] = useState<string | null>(null)
   const [expandedImg, setExpandedImg] = useState<string | null>(null)
+  const [approveAmount, setApproveAmount] = useState<Record<string, string>>({})
 
-  async function approve(userId: string) {
+  async function approve(userId: string, amountUsd: number) {
     setLoading(userId)
+    const days = calcSubscriptionDays(amountUsd)
     const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + SUBSCRIPTION_DURATION_DAYS)
+    expiresAt.setDate(expiresAt.getDate() + days)
 
     await supabase
       .from('profiles')
@@ -160,21 +167,57 @@ export default function AdminDashboardClient({ pendingUsers: initial, statCounts
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2 flex-wrap">
-                  <button
-                    onClick={() => approve(u.id)}
-                    disabled={loading === u.id}
-                    className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
-                  >
-                    {loading === u.id ? '…' : '✅ Approve'}
-                  </button>
-                  <button
-                    onClick={() => setRejectUserId(u.id)}
-                    disabled={loading === u.id}
-                    className="rounded-lg px-4 py-2 font-semibold text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-                  >
-                    🚫 Reject
-                  </button>
+                <div className="space-y-2">
+                  {/* Approval form */}
+                  <div className="flex flex-wrap items-end gap-2">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium text-slate-600">
+                        Amount Paid (USD)
+                      </label>
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="e.g. 10.00"
+                        value={approveAmount[u.id] ?? ''}
+                        onChange={(e) =>
+                          setApproveAmount((prev) => ({ ...prev, [u.id]: e.target.value }))
+                        }
+                        className="w-28 border border-slate-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        const amt = parseFloat(approveAmount[u.id] ?? '')
+                        if (amt > 0) approve(u.id, amt)
+                      }}
+                      disabled={loading === u.id || !(parseFloat(approveAmount[u.id] ?? '') > 0)}
+                      className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
+                    >
+                      {loading === u.id ? '…' : '✅ Approve'}
+                    </button>
+                    <button
+                      onClick={() => setRejectUserId(u.id)}
+                      disabled={loading === u.id}
+                      className="rounded-lg px-4 py-2 font-semibold text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                    >
+                      🚫 Reject
+                    </button>
+                  </div>
+                  {/* Live preview */}
+                  {(() => {
+                    const amt = parseFloat(approveAmount[u.id] ?? '')
+                    if (!(amt > 0)) return null
+                    const days = calcSubscriptionDays(amt)
+                    const expiry = new Date()
+                    expiry.setDate(expiry.getDate() + days)
+                    const expiryStr = expiry.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    return (
+                      <p className="text-xs text-slate-500">
+                        = {days} day{days !== 1 ? 's' : ''} <span className="text-slate-400">(expires {expiryStr})</span>
+                      </p>
+                    )
+                  })()}
                 </div>
 
                 {/* Reject form */}
