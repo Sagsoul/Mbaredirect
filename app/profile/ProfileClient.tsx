@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
@@ -66,12 +66,33 @@ export default function ProfileClient({
   const supabase = createClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [liveProfile, setLiveProfile] = useState<Profile | null>(profile)
+
   const parsed = parsePhone(profile?.phone ?? null)
   const [dialCode, setDialCode] = useState(parsed.dialCode)
   const [localPhone, setLocalPhone] = useState(parsed.local)
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [avatarPath, setAvatarPath] = useState<string | null>(profile?.avatar_url ?? null)
+
+  useEffect(() => {
+    supabase
+      .from('profiles')
+      .select('id, full_name, phone, role, status, avatar_url, created_at, subscription_expires_at')
+      .eq('id', user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) return
+        if (data) {
+          setLiveProfile(data)
+          if (data.avatar_url) setAvatarPath(data.avatar_url)
+          const parsed = parsePhone(data.phone ?? null)
+          setDialCode(parsed.dialCode)
+          setLocalPhone(parsed.local)
+        }
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.id])
 
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -161,10 +182,10 @@ export default function ProfileClient({
     setSaving(false)
   }
 
-  const fullName = profile?.full_name?.trim() || user.email?.split('@')[0] || 'Unknown'
-  const role = profile?.role ?? 'buyer'
-  const status = profile?.status ?? 'unverified'
-  const createdAt = profile?.created_at ?? new Date().toISOString()
+  const fullName = liveProfile?.full_name?.trim() || user.email?.split('@')[0] || 'Unknown'
+  const role = liveProfile?.role ?? 'buyer'
+  const status = liveProfile?.status ?? 'unverified'
+  const createdAt = liveProfile?.created_at ?? new Date().toISOString()
 
   return (
     <div className="max-w-sm mx-auto mt-8 space-y-6">
@@ -277,10 +298,10 @@ export default function ProfileClient({
           </p>
           <p className="font-bold mt-0.5">
             {(() => {
-              if (status !== 'verified' || !profile?.subscription_expires_at) {
+              if (status !== 'verified' || !liveProfile?.subscription_expires_at) {
                 return <span style={{ color: 'var(--text-muted)' }}>—</span>
               }
-              const expiryDate = new Date(profile.subscription_expires_at)
+              const expiryDate = new Date(liveProfile.subscription_expires_at)
               const now = new Date()
               const diffMs = expiryDate.getTime() - now.getTime()
               const diffDays = diffMs / (1000 * 60 * 60 * 24)
