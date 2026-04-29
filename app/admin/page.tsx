@@ -60,7 +60,7 @@ export default async function AdminPage() {
     .order('created_at', { ascending: true })
 
   // Step 2: Fetch profiles for those user_ids
-  const userIds = (paymentsRaw ?? []).map((p) => p.user_id)
+  const userIds = [...new Set((paymentsRaw ?? []).map((p) => p.user_id))]
 
   const { data: paymentProfiles } = userIds.length > 0
     ? await supabase
