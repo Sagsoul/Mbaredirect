@@ -27,8 +27,6 @@ interface Profile {
   role: string
   status: string
   avatar_url: string | null
-  ecocash_name: string | null
-  ecocash_ref: string | null
   created_at: string
 }
 
@@ -70,15 +68,14 @@ export default function ProfileClient({
   const parsed = parsePhone(profile?.phone ?? null)
   const [dialCode, setDialCode] = useState(parsed.dialCode)
   const [localPhone, setLocalPhone] = useState(parsed.local)
-  const [ecocashName, setEcocashName] = useState(profile?.ecocash_name ?? '')
-  const [ecocashRef, setEcocashRef] = useState(profile?.ecocash_ref ?? '')
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [avatarPath, setAvatarPath] = useState<string | null>(profile?.avatar_url ?? null)
 
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState('')
+  const [avatarError, setAvatarError] = useState('')
+  const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
   const [avatarSuccess, setAvatarSuccess] = useState('')
 
@@ -94,11 +91,11 @@ export default function ProfileClient({
     if (!file) return
 
     if (file.size > 2 * 1024 * 1024) {
-      setError('Image must be under 2 MB.')
+      setAvatarError('Image must be under 2 MB.')
       return
     }
 
-    setError('')
+    setAvatarError('')
     setAvatarSuccess('')
     setUploading(true)
 
@@ -115,7 +112,10 @@ export default function ProfileClient({
       .upload(storagePath, file, { upsert: true, contentType: file.type })
 
     if (uploadError) {
-      setError(uploadError.message)
+      const msg = uploadError.message.includes('Bucket not found')
+        ? 'Avatar upload is not available right now.'
+        : uploadError.message
+      setAvatarError(msg)
       setAvatarPreview(null)
       setUploading(false)
       return
@@ -127,7 +127,7 @@ export default function ProfileClient({
       .eq('id', user.id)
 
     if (updateError) {
-      setError(updateError.message)
+      setAvatarError(updateError.message)
     } else {
       setAvatarPath(storagePath)
       setAvatarSuccess('✅ Photo updated!')
@@ -138,7 +138,7 @@ export default function ProfileClient({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
+    setFormError('')
     setSuccess('')
     setSaving(true)
 
@@ -148,13 +148,11 @@ export default function ProfileClient({
       .from('profiles')
       .update({
         phone,
-        ecocash_name: ecocashName || null,
-        ecocash_ref: ecocashRef || null,
       })
       .eq('id', user.id)
 
     if (updateError) {
-      setError(updateError.message)
+      setFormError(updateError.message)
     } else {
       setSuccess('Profile updated successfully.')
     }
@@ -162,7 +160,7 @@ export default function ProfileClient({
     setSaving(false)
   }
 
-  const fullName = profile?.full_name ?? 'Unknown'
+  const fullName = profile?.full_name?.trim() || user.email?.split('@')[0] || 'Unknown'
   const role = profile?.role ?? 'buyer'
   const status = profile?.status ?? 'unverified'
   const createdAt = profile?.created_at ?? new Date().toISOString()
@@ -229,6 +227,9 @@ export default function ProfileClient({
         >
           {uploading ? 'Uploading…' : 'Change photo'}
         </button>
+        {avatarError && (
+          <p className="text-xs font-medium text-red-600 text-center">{avatarError}</p>
+        )}
         {avatarSuccess && (
           <p className="text-xs font-medium" style={{ color: '#065f46' }}>{avatarSuccess}</p>
         )}
@@ -276,9 +277,9 @@ export default function ProfileClient({
         onSubmit={handleSubmit}
         className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 space-y-4"
       >
-        {error && (
+        {formError && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2 text-sm">
-            {error}
+            {formError}
           </div>
         )}
         {success && (
@@ -328,40 +329,13 @@ export default function ProfileClient({
           </div>
         </div>
 
-        {/* EcoCash Name */}
-        <div className="space-y-1">
-          <label htmlFor="ecocashName" className="block text-sm font-medium text-slate-700">
-            EcoCash Name
-          </label>
-          <input
-            id="ecocashName"
-            type="text"
-            value={ecocashName}
-            onChange={(e) => setEcocashName(e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10"
-            placeholder="Name on EcoCash account"
-          />
-        </div>
-
-        {/* EcoCash Ref */}
-        <div className="space-y-1">
-          <label htmlFor="ecocashRef" className="block text-sm font-medium text-slate-700">
-            EcoCash Reference
-          </label>
-          <input
-            id="ecocashRef"
-            type="text"
-            value={ecocashRef}
-            onChange={(e) => setEcocashRef(e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10"
-            placeholder="e.g. EC12345678"
-          />
-        </div>
-
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600 disabled:opacity-60"
+          className="w-full text-white rounded-lg px-4 py-2.5 font-semibold text-sm disabled:opacity-60"
+          style={{ backgroundColor: 'var(--green)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--green-mid)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--green)')}
         >
           {saving ? 'Saving…' : 'Save Changes'}
         </button>

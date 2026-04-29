@@ -41,7 +41,7 @@ export default function RootLayout({
         {/* ── Navigation ── */}
         <NavBar />
 
-        <main className="max-w-3xl mx-auto px-4 py-6">{children}</main>
+        <main className="max-w-3xl mx-auto px-4 py-6 pb-20 sm:pb-6">{children}</main>
 
         {/* ── Footer ── */}
         <footer

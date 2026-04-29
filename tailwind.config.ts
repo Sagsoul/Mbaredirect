@@ -20,8 +20,14 @@ const config: Config = {
         ],
       },
       colors: {
+        brand: {
+          green: '#1B4D2E',
+          'green-hover': '#2D6B45',
+          amber: '#C8771C',
+          'amber-hover': '#9E5C12',
+        },
         primary: {
-          DEFAULT: '#15803d',
+          DEFAULT: '#1B4D2E',
           foreground: '#ffffff',
         },
       },
