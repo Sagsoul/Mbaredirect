@@ -11,7 +11,7 @@ export default function DonatePage() {
         </h1>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
           Mbare Direct is community-funded. Every contribution keeps the platform
-          running free for Zimbabwean traders and buyers around the world.
+          affordable for Zimbabwean traders and buyers around the world.
         </p>
       </div>
 
@@ -37,7 +37,7 @@ export default function DonatePage() {
         </div>
 
         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-          Send any amount you can towards the subsidy fee — every dollar helps
+          Send any amount you can towards the platform fees — every dollar helps
           keep the platform affordable for verified traders.
         </p>
       </div>
