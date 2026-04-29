@@ -104,6 +104,13 @@ export default function PaymentClient({
           <p style={{ color: 'var(--charcoal)' }}>
             👤 <strong>Shingai Gunha</strong>
           </p>
+          <div className="mt-2 pt-2 border-t border-green-200 space-y-0.5">
+            <p className="font-medium" style={{ color: '#065f46' }}>💡 Annual membership: <strong>$10 USD = 1 year</strong></p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              You can pay any amount — you&apos;ll get days pro-rated to what you pay.
+              E.g. $5 = ~6 months, $15 = ~1.5 years.
+            </p>
+          </div>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             After sending, enter your EcoCash transaction reference below.
           </p>
