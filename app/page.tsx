@@ -96,6 +96,13 @@ export default async function Home({
         >
           Join the Club — $10/year
         </a>
+        <a
+          href="/donate"
+          className="inline-block rounded-lg px-5 py-2.5 font-semibold text-sm transition-opacity hover:opacity-90 border"
+          style={{ borderColor: '#C8771C', color: '#C8771C' }}
+        >
+          ❤️ Support Us
+        </a>
       </section>
 
       {/* Category filter */}

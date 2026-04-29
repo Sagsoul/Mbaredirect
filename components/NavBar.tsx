@@ -195,6 +195,13 @@ export default function NavBar() {
               >
                 Pay / Repay
               </a>
+              <a
+                href="/donate"
+                className="hover:opacity-80 transition-opacity"
+                style={{ color: 'var(--amber)', fontFamily: 'var(--font-ui)' }}
+              >
+                ❤️ Donate
+              </a>
             </div>
 
             <div className="relative" ref={dropdownRef}>
@@ -305,16 +312,17 @@ export default function NavBar() {
           style={{ backgroundColor: 'var(--charcoal)', borderTop: '1px solid var(--charcoal-mid)' }}
         >
           {[
-            { href: '/', icon: '🏠', label: 'Home' },
-            { href: dashboardHref, icon: '📊', label: 'Dashboard' },
-            { href: '/payment', icon: '💳', label: 'Pay' },
-            { href: '/profile', icon: '👤', label: 'Profile' },
-          ].map(({ href, icon, label }) => (
+            { href: '/', icon: '🏠', label: 'Home', amber: false },
+            { href: dashboardHref, icon: '📊', label: 'Dashboard', amber: false },
+            { href: '/payment', icon: '💳', label: 'Pay', amber: false },
+            { href: '/donate', icon: '❤️', label: 'Donate', amber: true },
+            { href: '/profile', icon: '👤', label: 'Profile', amber: false },
+          ].map(({ href, icon, label, amber }) => (
             <a
               key={href}
               href={href}
               className="flex flex-col items-center gap-0.5 text-xs font-semibold"
-              style={{ color: 'var(--cream)', fontFamily: 'var(--font-ui)' }}
+              style={{ color: amber ? 'var(--amber)' : 'var(--cream)', fontFamily: 'var(--font-ui)' }}
             >
               <span className="text-xl">{icon}</span>
               <span>{label}</span>
