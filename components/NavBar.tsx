@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 
 interface Profile {
   full_name: string
@@ -46,6 +47,7 @@ export default function NavBar() {
   const supabaseRef = useRef(createClient())
   const supabase = supabaseRef.current
   const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -57,10 +59,13 @@ export default function NavBar() {
 
     async function loadSession() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user || !mounted) {
+      if (!mounted) return
+      if (!user) {
         setLoading(false)
         return
       }
+
+      setUser(user)
 
       const { data } = await supabase
         .from('profiles')
@@ -105,6 +110,7 @@ export default function NavBar() {
 
   async function handleSignOut() {
     await supabase.auth.signOut()
+    setUser(null)
     setProfile(null)
     setAvatarUrl(null)
     setDropdownOpen(false)
@@ -170,7 +176,7 @@ export default function NavBar() {
 
       {/* Right side */}
       <div className="flex gap-3 text-sm font-semibold items-center">
-        {loading ? null : profile ? (
+        {loading ? null : user ? (
           /* ── Logged-in ── */
           <div className="relative" ref={dropdownRef}>
             <button
@@ -186,7 +192,7 @@ export default function NavBar() {
               >
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt={profile.full_name} className="w-full h-full object-cover" />
+                  <img src={avatarUrl} alt={profile?.full_name ?? 'User'} className="w-full h-full object-cover" />
                 ) : (
                   <span
                     style={{
@@ -197,18 +203,20 @@ export default function NavBar() {
                       color: '#fff',
                     }}
                   >
-                    {getInitials(profile.full_name)}
+                    {profile ? getInitials(profile.full_name) : '?'}
                   </span>
                 )}
               </div>
 
-              {/* Name */}
-              <span className="hidden sm:block text-sm" style={{ color: 'var(--cream)', fontFamily: 'var(--font-ui)' }}>
-                {truncatedName}
-              </span>
+              {/* Name — only when profile is loaded */}
+              {profile && (
+                <span className="hidden sm:block text-sm" style={{ color: 'var(--cream)', fontFamily: 'var(--font-ui)' }}>
+                  {truncatedName}
+                </span>
+              )}
 
-              {/* Status badge */}
-              <StatusBadge status={profile.status} />
+              {/* Status badge — only when profile is loaded */}
+              {profile && <StatusBadge status={profile.status} />}
             </button>
 
             {/* Dropdown */}
