@@ -289,7 +289,7 @@ export default function BuyerDashboardClient({ userId, priceFloors, myRequests: 
         <h1 className="text-xl font-bold text-slate-900">🛒 Buyer Dashboard</h1>
         <button
           onClick={() => { setShowForm(!showForm); setSuccess(false) }}
-          className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600"
+          className="rounded-lg px-4 py-2 font-semibold text-sm bg-brand-green text-white hover:bg-brand-green-hover"
         >
           {showForm ? 'Cancel' : '+ Post a Request'}
         </button>
@@ -396,7 +396,7 @@ export default function BuyerDashboardClient({ userId, priceFloors, myRequests: 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600 disabled:opacity-60"
+            className="w-full bg-brand-green text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-brand-green-hover disabled:opacity-60"
           >
             {loading ? 'Posting…' : 'Post Request'}
           </button>
@@ -470,7 +470,7 @@ export default function BuyerDashboardClient({ userId, priceFloors, myRequests: 
                     <button
                       onClick={() => handleSaveEdit(req)}
                       disabled={editLoading}
-                      className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
+                      className="rounded-lg px-4 py-2 font-semibold text-sm bg-brand-green text-white hover:bg-brand-green-hover disabled:opacity-60"
                     >
                       {editLoading ? 'Saving…' : 'Save'}
                     </button>

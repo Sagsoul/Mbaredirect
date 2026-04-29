@@ -195,7 +195,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600 disabled:opacity-60"
+          className="w-full text-white rounded-lg px-4 py-2.5 font-semibold text-sm disabled:opacity-60 bg-brand-green hover:bg-brand-green-hover"
         >
           {loading ? 'Creating account…' : 'Create Account'}
         </button>

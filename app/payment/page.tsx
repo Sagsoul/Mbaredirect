@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import ProfileClient from './ProfileClient'
+import PaymentClient from './PaymentClient'
 
-export default async function ProfilePage() {
+export default async function PaymentPage() {
   const supabase = await createClient()
 
   const {
@@ -15,9 +15,9 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, full_name, phone, role, status, avatar_url, created_at')
+    .select('full_name, phone, role, status')
     .eq('id', user.id)
     .single()
 
-  return <ProfileClient user={user} profile={profile} />
+  return <PaymentClient user={user} profile={profile} />
 }

@@ -178,7 +178,26 @@ export default function NavBar() {
       <div className="flex gap-3 text-sm font-semibold items-center">
         {loading ? null : user ? (
           /* ── Logged-in ── */
-          <div className="relative" ref={dropdownRef}>
+          <>
+            {/* Desktop nav links */}
+            <div className="hidden sm:flex items-center gap-4">
+              <a
+                href={dashboardHref}
+                className="hover:opacity-80 transition-opacity"
+                style={{ color: 'var(--cream)', fontFamily: 'var(--font-ui)' }}
+              >
+                Dashboard
+              </a>
+              <a
+                href="/payment"
+                className="hover:opacity-80 transition-opacity"
+                style={{ color: 'var(--cream)', fontFamily: 'var(--font-ui)' }}
+              >
+                Pay / Repay
+              </a>
+            </div>
+
+            <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen((o) => !o)}
               className="flex items-center gap-2 focus:outline-none"
@@ -252,6 +271,7 @@ export default function NavBar() {
               </div>
             )}
           </div>
+          </>
         ) : (
           /* ── Logged-out ── */
           <>
@@ -277,6 +297,31 @@ export default function NavBar() {
           </>
         )}
       </div>
+
+      {/* ── Mobile bottom navigation (logged-in only) ── */}
+      {!loading && user && (
+        <nav
+          className="fixed bottom-0 left-0 right-0 sm:hidden z-40 flex justify-around items-center py-2 px-4"
+          style={{ backgroundColor: 'var(--charcoal)', borderTop: '1px solid var(--charcoal-mid)' }}
+        >
+          {[
+            { href: '/', icon: '🏠', label: 'Home' },
+            { href: dashboardHref, icon: '📊', label: 'Dashboard' },
+            { href: '/payment', icon: '💳', label: 'Pay' },
+            { href: '/profile', icon: '👤', label: 'Profile' },
+          ].map(({ href, icon, label }) => (
+            <a
+              key={href}
+              href={href}
+              className="flex flex-col items-center gap-0.5 text-xs font-semibold"
+              style={{ color: 'var(--cream)', fontFamily: 'var(--font-ui)' }}
+            >
+              <span className="text-xl">{icon}</span>
+              <span>{label}</span>
+            </a>
+          ))}
+        </nav>
+      )}
     </nav>
   )
 }

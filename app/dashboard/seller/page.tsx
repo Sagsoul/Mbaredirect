@@ -260,7 +260,7 @@ export default function SellerDashboardPage() {
               <button
                 onClick={() => handleConfirmDeal(deal.id)}
                 disabled={confirmingDealId === deal.id}
-                className="rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600 disabled:opacity-60"
+                className="rounded-lg px-4 py-2 font-semibold text-sm text-white disabled:opacity-60 bg-brand-green hover:bg-brand-green-hover"
               >
                 {confirmingDealId === deal.id ? 'Confirming…' : '✅ Confirm Deal'}
               </button>
@@ -331,7 +331,7 @@ export default function SellerDashboardPage() {
                   setPitchError('')
                   setPitchSuccess(false)
                 }}
-                className="w-full rounded-lg px-4 py-2 font-semibold text-sm bg-green-700 text-white hover:bg-green-600"
+                className="w-full rounded-lg px-4 py-2 font-semibold text-sm bg-brand-green text-white hover:bg-brand-green-hover"
               >
                 💬 Pitch Now
               </button>
@@ -394,7 +394,7 @@ export default function SellerDashboardPage() {
                 <button
                   onClick={() => submitPitch(pitching)}
                   disabled={pitchLoading}
-                  className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600 disabled:opacity-60"
+                  className="w-full bg-brand-green text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-brand-green-hover disabled:opacity-60"
                 >
                   {pitchLoading ? 'Submitting…' : 'Submit Pitch'}
                 </button>
@@ -423,7 +423,7 @@ export default function SellerDashboardPage() {
             </div>
             <button
               onClick={() => submitRating(showRating)}
-              className="w-full bg-green-700 text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-green-600"
+              className="w-full bg-brand-green text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-brand-green-hover"
             >
               Submit Rating
             </button>
