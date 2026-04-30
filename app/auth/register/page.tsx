@@ -60,16 +60,22 @@ export default function RegisterPage() {
 
     if (data.user) {
       const phone = dialCode + localPhone.replace(/^0+/, '')
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        full_name: fullName,
-        phone,
-        role,
-        status: 'unverified',
+
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: data.user.id,
+          fullName,
+          phone,
+          role,
+        }),
       })
 
-      if (profileError) {
-        setError(profileError.message)
+      if (!res.ok) {
+        // Profile creation failed — sign out so user is not stuck
+        await supabase.auth.signOut()
+        setError('Account setup failed. Please try again or contact support.')
         setLoading(false)
         return
       }
